@@ -3,145 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard - Susu9</title>
+<title>Executive Admin Dashboard - Susu9</title>
 <script src="/js/theme-preload.js"></script>
 <link rel="stylesheet" href="/css/main.css">
 <style>
-/* Responsive & Spacing Polish */
-.admin-dash-wrap { padding: 4px; }
-.dash-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-.dash-title-group h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text, #1e293b); }
-.dash-date { font-size: 0.8rem; color: var(--muted, #64748b); margin-top: 2px; }
-.dash-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Modern Industry Dashboard Design */
+.dash-shell { padding: 4px; }
+.dash-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.dash-head-left h1 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--text, #1e293b); }
+.dash-subtitle { font-size: 0.8rem; color: var(--muted, #64748b); margin-top: 2px; }
+.dash-head-actions { display: flex; gap: 8px; align-items: center; }
 
-/* Stats cards */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.stat-card {
+/* 6 KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi-card {
   background: var(--panel, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 10px;
   padding: 14px 16px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
   transition: transform .15s, box-shadow .15s;
-  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  overflow: hidden;
 }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.stat-icon-wrap {
-  width: 44px; height: 44px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; flex-shrink: 0;
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.kpi-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
 }
-.stat-icon-blue   { background: rgba(37,99,235,.1);  color: #2563eb; }
-.stat-icon-green  { background: rgba(16,185,129,.1); color: #10b981; }
-.stat-icon-orange { background: rgba(245,158,11,.1); color: #f59e0b; }
-.stat-info { overflow: hidden; }
-.stat-value { font-size: 1.35rem; font-weight: 700; color: var(--text, #1e293b); line-height: 1.2; }
-.stat-label { font-size: 0.78rem; font-weight: 500; color: var(--muted, #64748b); margin-top: 2px; }
+.kpi-blue::before   { background: #3b82f6; }
+.kpi-green::before  { background: #10b981; }
+.kpi-purple::before { background: #8b5cf6; }
+.kpi-amber::before  { background: #f59e0b; }
+.kpi-rose::before   { background: #f43f5e; }
+.kpi-cyan::before   { background: #06b6d4; }
 
-/* Card & Table */
-.card-compact {
+.kpi-info { display: flex; flex-direction: column; gap: 2px; }
+.kpi-label { font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted, #64748b); }
+.kpi-value { font-size: 1.45rem; font-weight: 700; color: var(--text, #1e293b); line-height: 1.2; }
+.kpi-sub { font-size: 0.72rem; color: var(--muted, #94a3b8); margin-top: 2px; }
+.kpi-icon-pill {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+}
+.pill-blue   { background: rgba(59,130,246,0.1);  color: #3b82f6; }
+.pill-green  { background: rgba(16,185,129,0.1); color: #10b981; }
+.pill-purple { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+.pill-amber  { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.pill-rose   { background: rgba(244,63,94,0.1);  color: #f43f5e; }
+.pill-cyan   { background: rgba(6,182,212,0.1);  color: #06b6d4; }
+
+/* System Status Bar */
+.status-banner {
+  background: #f8fafc;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+}
+.status-pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.dot-live { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; }
+
+/* Section Card */
+.sec-card {
   background: var(--panel, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  margin-bottom: 16px;
   overflow: hidden;
 }
-.card-compact-header {
+.sec-card-header {
   padding: 12px 16px;
+  background: rgba(0,0,0,0.015);
   border-bottom: 1px solid var(--border, #e2e8f0);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  background: rgba(0,0,0,0.015);
 }
-.card-compact-header h3 { margin: 0; font-size: 0.98rem; font-weight: 600; color: var(--text, #1e293b); display: flex; align-items: center; gap: 8px; }
-.card-compact-body { padding: 14px 16px; }
+.sec-card-header h2 { margin: 0; font-size: 0.98rem; font-weight: 600; color: var(--text, #1e293b); display: flex; align-items: center; gap: 8px; }
+.sec-card-body { padding: 14px 16px; }
 
-/* Search row */
-.table-toolbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
-.search-box { position: relative; flex: 1; min-width: 240px; max-width: 450px; }
-.search-box input {
+/* Filter Tabs & Toolbar */
+.toolbar-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.filter-tabs { display: flex; gap: 4px; background: #f1f5f9; padding: 3px; border-radius: 6px; }
+.ftab {
+  border: none; background: transparent; padding: 5px 10px;
+  font-size: 0.78rem; font-weight: 600; color: var(--muted, #64748b);
+  border-radius: 5px; cursor: pointer; transition: all .12s;
+}
+.ftab.active { background: #fff; color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.search-field { position: relative; min-width: 240px; max-width: 400px; flex: 1; }
+.search-field input {
   width: 100%;
-  padding: 8px 12px 8px 34px;
-  border-radius: 8px;
+  padding: 7px 12px 7px 32px;
+  border-radius: 6px;
   border: 1px solid var(--border, #cbd5e1);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   background: var(--bg, #f8fafc);
   color: var(--text, #1e293b);
   box-sizing: border-box;
 }
-.search-box input:focus { outline: none; border-color: #2563eb; background: #fff; }
-.search-box-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--muted, #94a3b8); pointer-events: none; }
-.results-pill { font-size: 0.78rem; color: var(--muted, #64748b); font-weight: 500; }
+.search-field input:focus { outline: none; border-color: #2563eb; background: #fff; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--muted, #94a3b8); pointer-events: none; }
 
-/* Scrollable Table */
-.table-scroll-container {
-  max-height: 420px;
+/* 10-Row Scroll Table */
+.scroll-table-box {
+  max-height: 440px;
   overflow-y: auto;
   overflow-x: auto;
   border: 1px solid var(--border, #e2e8f0);
-  border-radius: 8px;
+  border-radius: 6px;
 }
-.custom-table {
+.admin-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
   text-align: center;
 }
-.custom-table thead th {
+.admin-table thead th {
   position: sticky;
   top: 0;
   z-index: 3;
   background: #f1f5f9;
   color: #475569;
   font-weight: 600;
-  padding: 10px 8px;
+  padding: 9px 8px;
   border-bottom: 2px solid #cbd5e1;
   white-space: nowrap;
 }
-.custom-table tbody tr {
+.admin-table tbody tr {
   border-bottom: 1px solid var(--border, #f1f5f9);
-  transition: background .12s;
+  transition: background .1s;
 }
-.custom-table tbody tr:hover { background: rgba(37,99,235,0.035); }
-.custom-table td { padding: 8px; vertical-align: middle; white-space: nowrap; }
+.admin-table tbody tr:hover { background: rgba(37,99,235,0.035); }
+.admin-table td { padding: 8px; vertical-align: middle; white-space: nowrap; }
 
 /* Badges */
-.badge-active   { background: rgba(16,185,129,.12); color: #047857; padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 600; display: inline-block; }
-.badge-inactive { background: rgba(239,68,68,.12);  color: #b91c1c; padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 600; display: inline-block; }
+.badge-paid    { background: rgba(16,185,129,0.12); color: #047857; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-trial   { background: rgba(59,130,246,0.12);  color: #1d4ed8; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-expired { background: rgba(239,68,68,0.12);   color: #b91c1c; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.subuser-pill  { background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
 
-/* Pagination footer */
-.pagination-bar {
+/* Pagination bar */
+.pag-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
   padding-top: 8px;
   border-top: 1px solid var(--border, #f1f5f9);
-}
-.page-info { font-size: 0.8rem; color: var(--muted, #64748b); }
-.page-buttons { display: flex; gap: 6px; align-items: center; }
-.page-btn {
-  background: var(--panel, #ffffff);
-  border: 1px solid var(--border, #cbd5e1);
-  color: var(--text, #334155);
-  padding: 5px 12px;
   font-size: 0.78rem;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all .15s;
+  color: var(--muted, #64748b);
 }
-.page-btn:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; }
-.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.page-curr { font-size: 0.78rem; font-weight: 600; color: #2563eb; padding: 0 4px; }
+.pag-btn {
+  background: #fff;
+  border: 1px solid var(--border, #cbd5e1);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all .12s;
+}
+.pag-btn:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; }
+.pag-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -149,78 +202,133 @@
 <script src="/js/api.js"></script>
 <script src="/js/nav.js"></script>
 
-<div class="admin-dash-wrap">
-  <!-- Top header -->
-  <div class="dash-header">
-    <div class="dash-title-group">
-      <h2>Admin Dashboard</h2>
-      <div class="dash-date" id="dashDate">Loading date...</div>
+<div class="dash-shell">
+  <!-- Top Title Bar -->
+  <div class="dash-head">
+    <div class="dash-head-left">
+      <h1>Executive Admin Dashboard</h1>
+      <div class="dash-subtitle" id="dashLiveDate">Loading system metrics...</div>
     </div>
-    <div class="dash-actions">
-      <button class="btn btn-secondary btn-sm" onclick="refreshDashboard()" title="Refresh stats and users">&#8635; Refresh</button>
+    <div class="dash-head-actions">
+      <button class="btn btn-secondary btn-sm" onclick="loadDashboardData()" title="Reload metrics">&#8635; Refresh</button>
       <button class="btn btn-success btn-sm" onclick="goToApp()">Admin &#8594; Go to App</button>
     </div>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid" id="statsGrid">
-    <a href="/pages/admin/users.html" style="text-decoration:none;color:inherit;">
-      <div class="stat-card">
-        <div class="stat-icon-wrap stat-icon-blue">&#128101;</div>
-        <div class="stat-info">
-          <div class="stat-value" id="totalUsers">-</div>
-          <div class="stat-label">Total Users</div>
-        </div>
+  <!-- 6 Strategic KPI Cards -->
+  <div class="kpi-grid">
+    <!-- Total Users -->
+    <a href="/pages/admin/users.html" class="kpi-card kpi-blue">
+      <div class="kpi-info">
+        <span class="kpi-label">Total Users</span>
+        <span class="kpi-value" id="kpiTotalUsers">-</span>
+        <span class="kpi-sub" id="kpiActiveUsersSub">Loading active status...</span>
       </div>
+      <div class="kpi-icon-pill pill-blue">&#128101;</div>
     </a>
-    <a href="/pages/admin/user-sales.html" style="text-decoration:none;color:inherit;">
-      <div class="stat-card">
-        <div class="stat-icon-wrap stat-icon-green">&#128176;</div>
-        <div class="stat-info">
-          <div class="stat-value" id="todaySale">-</div>
-          <div class="stat-label">Today's Sale</div>
-        </div>
+
+    <!-- Sub-Users -->
+    <a href="/pages/admin/users.html?tab=subusers" class="kpi-card kpi-purple">
+      <div class="kpi-info">
+        <span class="kpi-label">Sub-Users / Staff</span>
+        <span class="kpi-value" id="kpiTotalSubUsers">-</span>
+        <span class="kpi-sub" id="kpiSubUsersSub">Loading staff ratio...</span>
       </div>
+      <div class="kpi-icon-pill pill-purple">&#128100;</div>
     </a>
-    <div class="stat-card" style="cursor:default;">
-      <div class="stat-icon-wrap stat-icon-orange">&#10024;</div>
-      <div class="stat-info">
-        <div class="stat-value" id="newUsers">-</div>
-        <div class="stat-label">New Users (Month)</div>
+
+    <!-- Paid Subscribers -->
+    <a href="/pages/admin/subscriptions.html?tab=paid" class="kpi-card kpi-green">
+      <div class="kpi-info">
+        <span class="kpi-label">Paid Subscribers</span>
+        <span class="kpi-value" id="kpiPaidSubscribers">-</span>
+        <span class="kpi-sub" id="kpiRevenueSub">₹0 Total Revenue</span>
       </div>
+      <div class="kpi-icon-pill pill-green">&#128176;</div>
+    </a>
+
+    <!-- Active Free Trial -->
+    <a href="/pages/admin/subscriptions.html?tab=active_trials" class="kpi-card kpi-cyan">
+      <div class="kpi-info">
+        <span class="kpi-label">Active Free Trial</span>
+        <span class="kpi-value" id="kpiActiveFreeTrial">-</span>
+        <span class="kpi-sub">Testing 15-day trial</span>
+      </div>
+      <div class="kpi-icon-pill pill-cyan">&#127881;</div>
+    </a>
+
+    <!-- Trial Expired / Not Paid -->
+    <a href="/pages/admin/subscriptions.html?tab=expired_unpaid" class="kpi-card kpi-rose" title="Users who used free trial but didn't pay">
+      <div class="kpi-info">
+        <span class="kpi-label" style="color:#e11d48;">Trial Used But Not Paid</span>
+        <span class="kpi-value" id="kpiExpiredTrialUnpaid" style="color:#e11d48;">-</span>
+        <span class="kpi-sub">Expired & unpaid users</span>
+      </div>
+      <div class="kpi-icon-pill pill-rose">&#9888;</div>
+    </a>
+
+    <!-- Monthly Signups -->
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-info">
+        <span class="kpi-label">New Users (Month)</span>
+        <span class="kpi-value" id="kpiNewUsersMonth">-</span>
+        <span class="kpi-sub">Registered this month</span>
+      </div>
+      <div class="kpi-icon-pill pill-amber">&#10024;</div>
     </div>
   </div>
 
-  <!-- Switch to User Table Card -->
-  <div class="card-compact">
-    <div class="card-compact-header">
-      <h3><span>&#128260;</span> Switch to User Account</h3>
-      <div class="results-pill" id="userCountBadge">0 Users</div>
+  <!-- System Health & Config Bar -->
+  <div class="status-banner">
+    <div>
+      <span class="status-pill"><span class="dot-live"></span> System Operational</span>
+      <span style="color:var(--muted);margin:0 8px;">|</span>
+      <span>Database: <strong>SUSU9DB_DEV</strong></span>
+      <span style="color:var(--muted);margin:0 8px;">|</span>
+      <span>Default Free Trial: <strong id="cfgTrialBadge">15 Days</strong></span>
     </div>
-    <div class="card-compact-body">
-      <!-- Search Toolbar -->
-      <div class="table-toolbar">
-        <div class="search-box">
-          <span class="search-box-icon">&#128269;</span>
-          <input type="text" id="srchUser" placeholder="Type to search UID or Mobile..." oninput="onSearchInput()">
+    <div style="display:flex;gap:10px;">
+      <a href="/pages/admin/configurations.html" style="color:#2563eb;text-decoration:none;font-weight:600;">&#9881; Configurations &rarr;</a>
+      <a href="/pages/admin/audit-logs.html" style="color:#2563eb;text-decoration:none;font-weight:600;">&#128220; Audit Logs &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Users & Sub-Users Quick Control Card -->
+  <div class="sec-card">
+    <div class="sec-card-header">
+      <h2><span>&#128260;</span> User & Sub-User Directory (Quick Switch & View)</h2>
+      <div style="font-size:0.78rem;color:var(--muted);font-weight:600;" id="userSummaryTotalBadge">0 Users Loaded</div>
+    </div>
+    <div class="sec-card-body">
+      <!-- Toolbar with Filter Tabs & Live Typing Search -->
+      <div class="toolbar-wrap">
+        <div class="filter-tabs">
+          <button class="ftab active" onclick="setFilter('all', this)">All</button>
+          <button class="ftab" onclick="setFilter('with_subs', this)">With Sub-Users</button>
+          <button class="ftab" onclick="setFilter('paid', this)">Paid</button>
+          <button class="ftab" onclick="setFilter('trial', this)">Free Trial</button>
+          <button class="ftab" onclick="setFilter('expired', this)">Expired</button>
         </div>
-        <div class="page-info" id="recordRange">Showing 0-0 of 0</div>
+        <div class="search-field">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" id="srchUsers" placeholder="Type to search UID or Mobile..." oninput="onSearchTyping()">
+        </div>
       </div>
 
-      <!-- Scrollable 10-row container -->
-      <div class="table-scroll-container">
-        <div id="usersList" class="loading" style="padding:20px;text-align:center;"><span class="spinner"></span> Loading users...</div>
+      <!-- 10-Row Scrollable Table -->
+      <div class="scroll-table-box">
+        <div id="usersTableWrap" style="padding:24px;text-align:center;"><span class="spinner"></span> Loading users directory...</div>
       </div>
 
-      <!-- Pagination -->
-      <div class="pagination-bar">
-        <div class="page-info" id="pageSummary">Page 1 of 1</div>
-        <div class="page-buttons">
-          <button class="page-btn" id="btnFirst" onclick="goToPage(1)" title="First Page">&laquo; First</button>
-          <button class="page-btn" id="btnPrev" onclick="changePage(-1)" title="Previous Page">&lsaquo; Prev</button>
-          <span class="page-curr" id="currPageNum">1</span>
-          <button class="page-btn" id="btnNext" onclick="changePage(1)" title="Next Page">Next &rsaquo;</button>
-          <button class="page-btn" id="btnLast" onclick="goToLastPage()" title="Last Page">Last &raquo;</button>
+      <!-- Pagination bar -->
+      <div class="pag-bar">
+        <span id="pagRangeInfo">Showing 0 of 0</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="pag-btn" id="btnFirst" onclick="goToPage(1)">&laquo; First</button>
+          <button class="pag-btn" id="btnPrev" onclick="changePage(-1)">&lsaquo; Prev</button>
+          <span id="pagCurrInfo" style="font-weight:600;color:#2563eb;padding:0 6px;">1 / 1</span>
+          <button class="pag-btn" id="btnNext" onclick="changePage(1)">Next &rsaquo;</button>
+          <button class="pag-btn" id="btnLast" onclick="goToLastPage()">Last &raquo;</button>
         </div>
       </div>
     </div>
@@ -228,183 +336,204 @@
 </div>
 
 <script>
-let allUsers = [];
-let filteredUsers = [];
+let currentFilter = 'all';
 let currentPage = 1;
-const PAGE_SIZE = 10;
-let searchDebounceTimer = null;
+let totalPages = 1;
+let searchTimer = null;
 
 async function init() {
   const u = await initAdminPage('dashboard');
   if (!u) return;
 
   const now = new Date();
-  document.getElementById('dashDate').textContent = now.toLocaleDateString('en-IN', {
+  document.getElementById('dashLiveDate').textContent = now.toLocaleDateString('en-IN', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
+  }) + ' • SuperAdmin Portal';
 
-  loadDashboard();
-  loadUsers();
+  loadDashboardData();
+  fetchUsersTable();
 }
 
-async function loadDashboard() {
+async function loadDashboardData() {
   try {
-    const res = await API.get('/api/admin/dashboard');
-    if (res && res.success && res.data) {
-      document.getElementById('totalUsers').textContent = Number(res.data.TotalUsers || 0).toLocaleString('en-IN');
-      document.getElementById('todaySale').textContent = '₹' + parseFloat(res.data.TotalAmount || 0).toLocaleString('en-IN');
-      document.getElementById('newUsers').textContent = Number(res.data.NewUsers || 0).toLocaleString('en-IN');
+    const res = await API.get('/api/admin/dashboard-stats');
+    if (!res || !res.success || !res.data) return;
+
+    const k = res.data.kpis;
+    const c = res.data.configs;
+
+    document.getElementById('kpiTotalUsers').textContent = Number(k.totalUsers || 0).toLocaleString('en-IN');
+    document.getElementById('kpiActiveUsersSub').textContent = `${Number(k.activeStatusUsers || 0).toLocaleString('en-IN')} Active Accounts`;
+
+    document.getElementById('kpiTotalSubUsers').textContent = Number(k.totalSubUsers || 0).toLocaleString('en-IN');
+    document.getElementById('kpiSubUsersSub').textContent = `${k.activeSubUsers} Active across ${k.usersWithSubUsers} Users`;
+
+    document.getElementById('kpiPaidSubscribers').textContent = Number(k.paidSubscribers || 0).toLocaleString('en-IN');
+    document.getElementById('kpiRevenueSub').textContent = '₹' + Number(k.totalRevenue || 0).toLocaleString('en-IN') + ' Total Revenue';
+
+    document.getElementById('kpiActiveFreeTrial').textContent = Number(k.activeFreeTrial || 0).toLocaleString('en-IN');
+    document.getElementById('kpiExpiredTrialUnpaid').textContent = Number(k.expiredTrialUnpaid || 0).toLocaleString('en-IN');
+    document.getElementById('kpiNewUsersMonth').textContent = Number(k.newUsersMonth || 0).toLocaleString('en-IN');
+
+    if (c.freeTrialDays) {
+      document.getElementById('cfgTrialBadge').textContent = c.freeTrialDays + ' Days';
     }
-  } catch (e) {
-    console.error('Failed to load dashboard stats', e);
+  } catch (err) {
+    console.error('Failed to load dashboard metrics', err);
   }
 }
 
-async function loadUsers() {
-  const listEl = document.getElementById('usersList');
-  listEl.innerHTML = '<div style="padding:24px;text-align:center;"><span class="spinner"></span> Loading users...</div>';
+function onSearchTyping() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage = 1;
+    fetchUsersTable();
+  }, 200);
+}
+
+function setFilter(filt, el) {
+  currentFilter = filt;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  currentPage = 1;
+  fetchUsersTable();
+}
+
+async function fetchUsersTable() {
+  const wrap = document.getElementById('usersTableWrap');
+  wrap.innerHTML = '<div style="padding:24px;text-align:center;"><span class="spinner"></span> Loading users...</div>';
+
+  const q = (document.getElementById('srchUsers').value || '').trim();
+  const url = `/api/admin/users-advanced?page=${currentPage}&limit=10&filter=${currentFilter}&q=${encodeURIComponent(q)}`;
 
   try {
-    const res = await API.get('/api/admin/users');
-    if (!res || !res.success) {
-      listEl.innerHTML = '<div class="empty-state">Failed to load users</div>';
+    const res = await API.get(url);
+    if (!res || !res.success || !res.data) {
+      wrap.innerHTML = '<div class="empty-state">Failed to load users</div>';
       return;
     }
-    allUsers = res.data || [];
-    filteredUsers = allUsers;
-    document.getElementById('userCountBadge').textContent = allUsers.length.toLocaleString('en-IN') + ' Users';
-    currentPage = 1;
-    renderTable();
-  } catch (e) {
-    listEl.innerHTML = '<div class="empty-state">Error loading users</div>';
+
+    const { total, page, totalPages: tp, users } = res.data;
+    currentPage = page;
+    totalPages = tp;
+
+    document.getElementById('userSummaryTotalBadge').textContent = `${total.toLocaleString('en-IN')} Users Matching`;
+    const startIdx = total === 0 ? 0 : (currentPage - 1) * 10 + 1;
+    const endIdx = Math.min(currentPage * 10, total);
+    document.getElementById('pagRangeInfo').textContent = `Showing ${startIdx}–${endIdx} of ${total.toLocaleString('en-IN')}`;
+    document.getElementById('pagCurrInfo').textContent = `${currentPage} / ${totalPages}`;
+
+    document.getElementById('btnFirst').disabled = (currentPage <= 1);
+    document.getElementById('btnPrev').disabled  = (currentPage <= 1);
+    document.getElementById('btnNext').disabled  = (currentPage >= totalPages);
+    document.getElementById('btnLast').disabled  = (currentPage >= totalPages);
+
+    if (!users || users.length === 0) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">No users found matching criteria</div>';
+      return;
+    }
+
+    // Render Exactly 10 Rows
+    const rows = users.map((u, i) => {
+      const rowNum = startIdx + i;
+      const valStr = u.Validity ? new Date(u.Validity).toLocaleDateString('en-IN') : '-';
+      const regStr = u.RegisteredOn ? new Date(u.RegisteredOn).toLocaleDateString('en-IN') : '-';
+      const isActive = (u.Status === 1 || u.Status === 'True' || u.Status === true);
+
+      // Sub-users preview pills
+      let subUsersHtml = '<span style="color:var(--muted);font-size:0.75rem;">None</span>';
+      if (u.subUsers && u.subUsers.length > 0) {
+        const names = u.subUsers.map(s => s.subusername || s.Mobile).slice(0, 3).join(', ');
+        const extra = u.subUsers.length > 3 ? ` (+${u.subUsers.length - 3})` : '';
+        subUsersHtml = `<span class="subuser-pill" title="${u.subUsers.map(s => s.subusername).join(', ')}">&#128100; ${u.subUsers.length}: ${names}${extra}</span>`;
+      }
+
+      // Subscription badge
+      let subBadge = '<span class="badge-trial">Trial</span>';
+      if (u.SubscriptionType === 'PAID') {
+        subBadge = '<span class="badge-paid">Paid</span>';
+      } else if (u.SubscriptionType === 'EXPIRED') {
+        subBadge = '<span class="badge-expired">Expired</span>';
+      }
+
+      return `<tr>
+        <td style="color:var(--muted);font-size:0.75rem;width:40px;">${rowNum}</td>
+        <td><strong style="color:#2563eb;">${u.UID}</strong></td>
+        <td>${u.Mobile || '-'}</td>
+        <td style="text-align:left;">${subUsersHtml}</td>
+        <td style="font-size:0.78rem;">${valStr}</td>
+        <td>${subBadge}</td>
+        <td><span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
+        <td style="font-size:0.75rem;color:var(--muted);">${regStr}</td>
+        <td>
+          <button class="btn btn-primary btn-xs" onclick="switchToUser('${u.UID}')" title="Log in as this user" style="padding:3px 8px;font-size:0.74rem;">
+            &#8594; Switch
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `<table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th>UID</th>
+          <th>Mobile</th>
+          <th style="text-align:left;">Sub-Users (Staff)</th>
+          <th>Validity</th>
+          <th>Plan</th>
+          <th>Status</th>
+          <th>Registered</th>
+          <th style="width:80px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  } catch (err) {
+    wrap.innerHTML = '<div class="empty-state">Error querying users</div>';
   }
-}
-
-function onSearchInput() {
-  clearTimeout(searchDebounceTimer);
-  searchDebounceTimer = setTimeout(() => {
-    applyFilter();
-  }, 120);
-}
-
-function applyFilter() {
-  const q = (document.getElementById('srchUser').value || '').trim().toLowerCase();
-  if (!q) {
-    filteredUsers = allUsers;
-  } else {
-    filteredUsers = allUsers.filter(u =>
-      (u.UID ? String(u.UID).toLowerCase() : '').includes(q) ||
-      (u.Mobile ? String(u.Mobile).toLowerCase() : '').includes(q)
-    );
-  }
-  currentPage = 1;
-  renderTable();
-}
-
-function renderTable() {
-  const listEl = document.getElementById('usersList');
-  const totalRecords = filteredUsers.length;
-  const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
-
-  if (currentPage > totalPages) currentPage = totalPages;
-  if (currentPage < 1) currentPage = 1;
-
-  const startIdx = (currentPage - 1) * PAGE_SIZE;
-  const endIdx = Math.min(startIdx + PAGE_SIZE, totalRecords);
-  const pageItems = filteredUsers.slice(startIdx, endIdx);
-
-  // Update Toolbar & Pagination Info
-  document.getElementById('recordRange').textContent = totalRecords === 0
-    ? 'Showing 0 of 0'
-    : `Showing ${startIdx + 1}–${endIdx} of ${totalRecords.toLocaleString('en-IN')}`;
-
-  document.getElementById('pageSummary').textContent = `Page ${currentPage} of ${totalPages}`;
-  document.getElementById('currPageNum').textContent = `${currentPage} / ${totalPages}`;
-
-  document.getElementById('btnFirst').disabled = (currentPage <= 1);
-  document.getElementById('btnPrev').disabled  = (currentPage <= 1);
-  document.getElementById('btnNext').disabled  = (currentPage >= totalPages);
-  document.getElementById('btnLast').disabled  = (currentPage >= totalPages);
-
-  if (!totalRecords) {
-    listEl.innerHTML = '<div class="empty-state" style="padding:24px;text-align:center;color:var(--muted)">No matching users found</div>';
-    return;
-  }
-
-  // Render ONLY the 10 rows for optimal performance
-  listEl.innerHTML = `<table class="custom-table" cellpadding="6">
-    <thead>
-      <tr>
-        <th style="width:45px;">#</th>
-        <th>UID</th>
-        <th>Mobile</th>
-        <th>Validity</th>
-        <th>Status</th>
-        <th>Registered</th>
-        <th style="width:90px;">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${pageItems.map((u, i) => {
-        const rowNum = startIdx + i + 1;
-        const isActive = (u.IsActive === 'True' || u.IsActive === true);
-        const validityStr = u.ValidityDate ? new Date(u.ValidityDate).toLocaleDateString('en-IN') : '-';
-        const regStr = u.RegisteredOn ? new Date(u.RegisteredOn).toLocaleDateString('en-IN') : '-';
-        return `<tr>
-          <td style="color:var(--muted);font-size:.78rem;">${rowNum}</td>
-          <td><strong style="color:#2563eb;">${u.UID}</strong></td>
-          <td>${u.Mobile || '-'}</td>
-          <td style="font-size:.8rem;">${validityStr}</td>
-          <td><span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
-          <td style="font-size:.78rem;color:var(--muted);">${regStr}</td>
-          <td>
-            <button class="btn btn-primary btn-xs" onclick="switchToUser('${u.UID}')" title="Switch to this account" style="padding:3px 9px;font-size:.75rem;">
-              &#8594; Switch
-            </button>
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
 }
 
 function changePage(delta) {
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
-  const newPage = currentPage + delta;
-  if (newPage >= 1 && newPage <= totalPages) {
-    currentPage = newPage;
-    renderTable();
+  const newP = currentPage + delta;
+  if (newP >= 1 && newP <= totalPages) {
+    currentPage = newP;
+    fetchUsersTable();
   }
 }
 
 function goToPage(p) {
   currentPage = p;
-  renderTable();
+  fetchUsersTable();
 }
 
 function goToLastPage() {
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   currentPage = totalPages;
-  renderTable();
+  fetchUsersTable();
 }
 
 async function switchToUser(uid) {
-  const res = await API.get(`/api/admin/switch-user/${uid}`);
-  if (res && res.success) {
-    window.location.href = '/app/home.html';
-  } else {
-    alert('Error switching user: ' + (res?.message || 'Server error'));
+  try {
+    const res = await API.get(`/api/admin/switch-user/${uid}`);
+    if (res && res.success && res.token) {
+      // Preserve current admin token so user can return
+      const currentToken = localStorage.getItem('susu9_token');
+      if (currentToken) {
+        localStorage.setItem('susu9_admin_return_token', currentToken);
+      }
+      localStorage.setItem('susu9_token', res.token);
+      localStorage.setItem('susu9_user', JSON.stringify(res.user));
+      window.location.href = '/pages/home.html';
+    } else {
+      alert(res?.message || 'Error switching user');
+    }
+  } catch (e) {
+    alert('Switch user failed: ' + e.message);
   }
 }
 
 async function goToApp() {
-  await API.get('/api/admin/back-to-admin');
-  window.location.href = '/app/home.html';
-}
-
-function refreshDashboard() {
-  loadDashboard();
-  loadUsers();
+  window.location.href = '/pages/home.html';
 }
 
 init();

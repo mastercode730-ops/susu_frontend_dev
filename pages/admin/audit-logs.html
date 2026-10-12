@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Logs - Susu9 Admin</title>
+<script src="/js/theme-preload.js"></script>
+<link rel="stylesheet" href="/css/main.css">
+<style>
+.adm-shell { padding: 4px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.top-bar h1 { margin: 0; font-size: 1.3rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* Card */
+.adm-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.adm-card-header {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.adm-card-title { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text, #1e293b); display: flex; align-items: center; gap: 8px; }
+.adm-card-body { padding: 14px 16px; }
+
+/* Filter Toolbar */
+.toolbar-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.filter-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-dropdown {
+  padding: 7px 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+}
+
+.search-field { position: relative; min-width: 240px; max-width: 400px; flex: 1; }
+.search-field input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #cbd5e1);
+  font-size: 0.82rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  box-sizing: border-box;
+}
+.search-field .s-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--muted, #94a3b8); pointer-events: none; }
+
+/* 10-Row Scroll Table */
+.scroll-tbl {
+  max-height: 460px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+}
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+.log-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 9px 10px;
+  border-bottom: 2px solid #cbd5e1;
+  white-space: nowrap;
+}
+.log-table tbody tr {
+  border-bottom: 1px solid var(--border, #f1f5f9);
+  transition: background .1s;
+}
+.log-table tbody tr:hover { background: rgba(37,99,235,0.035); }
+.log-table td { padding: 8px 10px; vertical-align: middle; }
+
+/* Actor & Module Badges */
+.badge-admin   { background: #ede9fe; color: #6d28d9; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-user    { background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-subuser { background: #fef3c7; color: #92400e; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-module  { background: #f1f5f9; color: #334155; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; border: 1px solid var(--border); }
+
+/* Pagination bar */
+.pag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #f1f5f9);
+  font-size: 0.78rem;
+  color: var(--muted, #64748b);
+}
+.pag-btn {
+  background: #fff;
+  border: 1px solid var(--border, #cbd5e1);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.pag-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+
+<div class="adm-shell">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div>
+      <h1>Platform Audit & Activity Logs</h1>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Complete chronological audit trail of all Users, Staff Sub-Users, and Admin actions</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">&#8635; Refresh Logs</button>
+      <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+    </div>
+  </div>
+
+  <div class="adm-card">
+    <div class="adm-card-header">
+      <div class="adm-card-title">
+        <span>&#128220;</span> Activity Trail
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);font-weight:600;" id="logsTotalCount">0 Logs Found</div>
+    </div>
+    <div class="adm-card-body">
+      <!-- Toolbar -->
+      <div class="toolbar-wrap">
+        <div class="filter-selects">
+          <select id="selModule" class="filter-dropdown" onchange="onFilterChange()">
+            <option value="all">All Modules</option>
+            <option value="Auth">Auth & Logins</option>
+            <option value="Customers">Customers</option>
+            <option value="Hisaab">Hisaab Entries</option>
+            <option value="Accounts">Accounts</option>
+            <option value="SubUsers">Staff Sub-Users</option>
+            <option value="Subscription">Subscriptions</option>
+            <option value="Configuration">Configurations</option>
+            <option value="Admin">Admin Actions</option>
+          </select>
+
+          <select id="selActor" class="filter-dropdown" onchange="onFilterChange()">
+            <option value="all">All Actors</option>
+            <option value="SuperAdmin">SuperAdmin</option>
+            <option value="User">Main Users</option>
+            <option value="SubUser">Staff Sub-Users</option>
+          </select>
+        </div>
+
+        <div class="search-field">
+          <span class="s-ico">&#128269;</span>
+          <input type="text" id="srchLogs" placeholder="Search by Action, Description, Actor Name or UID..." oninput="onSearchTyping()">
+        </div>
+      </div>
+
+      <!-- 10-Row Scroll Container -->
+      <div class="scroll-tbl">
+        <div id="logsTableWrap" style="padding:24px;text-align:center;"><span class="spinner"></span> Loading audit logs...</div>
+      </div>
+
+      <!-- Pagination bar -->
+      <div class="pag-row">
+        <span id="pagRangeInfo">Showing 0 of 0</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="pag-btn" id="btnFirst" onclick="goToPage(1)">&laquo; First</button>
+          <button class="pag-btn" id="btnPrev" onclick="changePage(-1)">&lsaquo; Prev</button>
+          <span id="currPageNum" style="font-weight:600;color:#2563eb;padding:0 6px;">1 / 1</span>
+          <button class="pag-btn" id="btnNext" onclick="changePage(1)">Next &rsaquo;</button>
+          <button class="pag-btn" id="btnLast" onclick="goToLastPage()">Last &raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+let searchTimer = null;
+
+async function init() {
+  const u = await initAdminPage('audit-logs');
+  if (!u) return;
+
+  loadAuditLogs();
+}
+
+function onFilterChange() {
+  currentPage = 1;
+  loadAuditLogs();
+}
+
+function onSearchTyping() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage = 1;
+    loadAuditLogs();
+  }, 200);
+}
+
+async function loadAuditLogs() {
+  const wrap = document.getElementById('logsTableWrap');
+  wrap.innerHTML = '<div style="padding:24px;text-align:center;"><span class="spinner"></span> Loading audit logs...</div>';
+
+  const q = (document.getElementById('srchLogs').value || '').trim();
+  const moduleVal = document.getElementById('selModule').value;
+  const actorVal = document.getElementById('selActor').value;
+
+  const url = `/api/admin/audit-logs?page=${currentPage}&limit=10&module=${moduleVal}&actor=${actorVal}&q=${encodeURIComponent(q)}`;
+
+  try {
+    const res = await API.get(url);
+    if (!res || !res.success || !res.data) {
+      wrap.innerHTML = '<div class="empty-state">Failed to load audit logs</div>';
+      return;
+    }
+
+    const { total, page, totalPages: tp, logs } = res.data;
+    currentPage = page;
+    totalPages = tp;
+
+    document.getElementById('logsTotalCount').textContent = `${total.toLocaleString('en-IN')} Logs Found`;
+    const startIdx = total === 0 ? 0 : (currentPage - 1) * 10 + 1;
+    const endIdx = Math.min(currentPage * 10, total);
+    document.getElementById('pagRangeInfo').textContent = `Showing ${startIdx}–${endIdx} of ${total.toLocaleString('en-IN')}`;
+    document.getElementById('currPageNum').textContent = `${currentPage} / ${totalPages}`;
+
+    document.getElementById('btnFirst').disabled = (currentPage <= 1);
+    document.getElementById('btnPrev').disabled  = (currentPage <= 1);
+    document.getElementById('btnNext').disabled  = (currentPage >= totalPages);
+    document.getElementById('btnLast').disabled  = (currentPage >= totalPages);
+
+    if (!logs || logs.length === 0) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">No audit logs match criteria</div>';
+      return;
+    }
+
+    const rows = logs.map((l, i) => {
+      const rowNum = startIdx + i;
+      const timeStr = l.CreatedAt ? new Date(l.CreatedAt).toLocaleString('en-IN') : '-';
+
+      // Badge by ActorType
+      let actorBadge = '<span class="badge-user">User</span>';
+      if (l.ActorType === 'SuperAdmin') actorBadge = '<span class="badge-admin">SuperAdmin</span>';
+      else if (l.ActorType === 'SubUser') actorBadge = '<span class="badge-subuser">Staff (SubUser)</span>';
+
+      return `<tr>
+        <td style="color:var(--muted);font-size:0.75rem;width:35px;text-align:center;">${rowNum}</td>
+        <td style="white-space:nowrap;font-size:0.78rem;color:var(--muted);">${timeStr}</td>
+        <td>
+          <div style="font-weight:600;">${l.ActorName || 'Actor #' + (l.fUID || '-')}</div>
+          <div style="font-size:0.72rem;color:var(--muted);">${actorBadge} (ID: ${l.fUID || l.ActorID || '-'})</div>
+        </td>
+        <td><span class="badge-module">${l.Module || 'General'}</span></td>
+        <td style="font-weight:600;color:#2563eb;">${l.Action || '-'}</td>
+        <td style="font-size:0.8rem;color:#334155;">${l.Description || '-'}</td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `<table class="log-table">
+      <thead>
+        <tr>
+          <th style="width:35px;text-align:center;">#</th>
+          <th>Timestamp</th>
+          <th>Actor</th>
+          <th>Module</th>
+          <th>Action</th>
+          <th>Description & Details</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty-state">Error querying audit logs</div>';
+  }
+}
+
+function changePage(d) {
+  const p = currentPage + d;
+  if (p >= 1 && p <= totalPages) { currentPage = p; loadAuditLogs(); }
+}
+function goToPage(p) { currentPage = p; loadAuditLogs(); }
+function goToLastPage() { currentPage = totalPages; loadAuditLogs(); }
+
+init();
+</script>
+</body>
+</html>

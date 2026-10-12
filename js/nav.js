@@ -387,12 +387,13 @@ function renderAdminShell(active) {
         </div>
         <ul class="nav nav-primary">
           <li class="nav-section">
-            <h4 class="text-section">Menu</h4>
+            <h4 class="text-section">Admin Suite</h4>
           </li>
-          ${item('dashboard', '/pages/admin/dashboard.html', 'fa fa-search', 'Dashboard')}
-          ${item('users', '/pages/admin/users.html', 'fas fa-users', 'User')}
-          ${item('user-sales', '/pages/admin/user-sales.html', 'fas fa-keyboard', 'Sale')}
-          ${item('open-yantri', '/pages/admin/open-yantri.html', 'fas fa-chart-bar', 'Yantri')}
+          ${item('dashboard', '/pages/admin/dashboard.html', 'fas fa-chart-line', 'Dashboard')}
+          ${item('users', '/pages/admin/users.html', 'fas fa-users-cog', 'Users & Sub-Users')}
+          ${item('subscriptions', '/pages/admin/subscriptions.html', 'fas fa-credit-card', 'Subscriptions & Sales')}
+          ${item('configurations', '/pages/admin/configurations.html', 'fas fa-sliders-h', 'Configurations')}
+          ${item('audit-logs', '/pages/admin/audit-logs.html', 'fas fa-history', 'Audit Logs')}
         </ul>
       </div>
     </div>

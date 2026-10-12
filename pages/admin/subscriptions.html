@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscriptions & Sales - Susu9 Admin</title>
+<script src="/js/theme-preload.js"></script>
+<link rel="stylesheet" href="/css/main.css">
+<style>
+.adm-shell { padding: 4px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.top-bar h1 { margin: 0; font-size: 1.3rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* 4 KPI Cards */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-box {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.stat-box .title { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: var(--muted, #64748b); }
+.stat-box .val { font-size: 1.4rem; font-weight: 700; color: var(--text, #1e293b); line-height: 1.2; margin-top: 2px; }
+.stat-box .sub { font-size: 0.72rem; color: var(--muted, #94a3b8); margin-top: 2px; }
+.stat-box .icon-p {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+}
+
+/* Card */
+.adm-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.adm-card-header {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.adm-card-title { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text, #1e293b); display: flex; align-items: center; gap: 8px; }
+.adm-card-body { padding: 14px 16px; }
+
+/* Filter Tabs & Toolbar */
+.toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.tab-pills { display: flex; gap: 4px; background: #f1f5f9; padding: 3px; border-radius: 6px; }
+.tp-btn {
+  border: none; background: transparent; padding: 6px 12px;
+  font-size: 0.78rem; font-weight: 600; color: var(--muted, #64748b);
+  border-radius: 5px; cursor: pointer; transition: all .12s;
+}
+.tp-btn.active { background: #fff; color: #2563eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.search-box { position: relative; min-width: 240px; max-width: 400px; flex: 1; }
+.search-box input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #cbd5e1);
+  font-size: 0.82rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  box-sizing: border-box;
+}
+.search-box .s-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--muted, #94a3b8); pointer-events: none; }
+
+/* 10-Row Scroll Table */
+.scroll-tbl {
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+}
+.adm-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: center;
+}
+.adm-tbl thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 9px 8px;
+  border-bottom: 2px solid #cbd5e1;
+  white-space: nowrap;
+}
+.adm-tbl tbody tr {
+  border-bottom: 1px solid var(--border, #f1f5f9);
+  transition: background .1s;
+}
+.adm-tbl tbody tr:hover { background: rgba(37,99,235,0.035); }
+.adm-tbl td { padding: 8px; vertical-align: middle; white-space: nowrap; }
+
+/* Badges */
+.badge-success { background: rgba(16,185,129,0.12); color: #047857; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-danger  { background: rgba(239,68,68,0.12);  color: #b91c1c; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-warn    { background: rgba(245,158,11,0.12); color: #b45309; padding: 2px 7px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+
+/* Pagination bar */
+.pag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #f1f5f9);
+  font-size: 0.78rem;
+  color: var(--muted, #64748b);
+}
+.pag-btn {
+  background: #fff;
+  border: 1px solid var(--border, #cbd5e1);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.pag-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 1000; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: #fff; width: 90%; max-width: 450px; border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden;
+}
+.modal-head {
+  padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-body { padding: 16px; }
+</style>
+</head>
+<body>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+
+<div class="adm-shell">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>
+      <h1>Subscriptions & Sales Analytics</h1>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Track Platform Revenue, Active Subscribers, and Free Trial Conversions</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary btn-sm" onclick="openGrantModal()">&#10010; Grant / Extend Plan</button>
+      <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+    </div>
+  </div>
+
+  <!-- 4 KPI Boxes -->
+  <div class="kpi-row">
+    <div class="stat-box">
+      <div>
+        <div class="title">Total Revenue</div>
+        <div class="val" id="statRevenue">₹0</div>
+        <div class="sub" id="statTransactions">0 Transactions</div>
+      </div>
+      <div class="icon-p" style="background:rgba(16,185,129,0.1);color:#10b981;">&#128176;</div>
+    </div>
+
+    <div class="stat-box">
+      <div>
+        <div class="title">Paid Subscribers</div>
+        <div class="val" id="statPaidSubscribers">0</div>
+        <div class="sub">Active paying users</div>
+      </div>
+      <div class="icon-p" style="background:rgba(59,130,246,0.1);color:#3b82f6;">&#128101;</div>
+    </div>
+
+    <div class="stat-box">
+      <div>
+        <div class="title">Active Free Trial</div>
+        <div class="val" id="statActiveTrials">0</div>
+        <div class="sub">Currently evaluating trial</div>
+      </div>
+      <div class="icon-p" style="background:rgba(6,182,212,0.1);color:#06b6d4;">&#127881;</div>
+    </div>
+
+    <!-- Trial Used But Not Paid -->
+    <div class="stat-box" style="border-left:4px solid #f43f5e;">
+      <div>
+        <div class="title" style="color:#e11d48;">Trial Used But Not Paid</div>
+        <div class="val" id="statExpiredUnpaid" style="color:#e11d48;">0</div>
+        <div class="sub">Expired trial, haven't paid</div>
+      </div>
+      <div class="icon-p" style="background:rgba(244,63,94,0.1);color:#f43f5e;">&#9888;</div>
+    </div>
+  </div>
+
+  <!-- Main Card with Tabs & 10-Row Table -->
+  <div class="adm-card">
+    <div class="adm-card-header">
+      <div class="adm-card-title">
+        <span>&#128203;</span> <span id="tblCardTitle">Trial Used But Not Paid</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);font-weight:600;" id="recordsCountBadge">0 Records</div>
+    </div>
+    <div class="adm-card-body">
+      <!-- Toolbar -->
+      <div class="toolbar-row">
+        <div class="tab-pills">
+          <button class="tp-btn active" id="tabExpiredUnpaid" onclick="setTab('expired_unpaid', this)">Trial Used But Not Paid</button>
+          <button class="tp-btn" id="tabPayments" onclick="setTab('payments', this)">Payment Transactions</button>
+          <button class="tp-btn" id="tabPaidUsers" onclick="setTab('paid_users', this)">Paid Subscribers</button>
+          <button class="tp-btn" id="tabActiveTrials" onclick="setTab('active_trials', this)">Active Trials</button>
+        </div>
+        <div class="search-box">
+          <span class="s-ico">&#128269;</span>
+          <input type="text" id="srchSales" placeholder="Type to search Mobile, UID, or Order ID..." oninput="onSearchTyping()">
+        </div>
+      </div>
+
+      <!-- 10-Row Scroll Table Container -->
+      <div class="scroll-tbl">
+        <div id="salesTableWrap" style="padding:24px;text-align:center;"><span class="spinner"></span> Loading data...</div>
+      </div>
+
+      <!-- Pagination bar -->
+      <div class="pag-row">
+        <span id="pagRangeInfo">Showing 0 of 0</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <button class="pag-btn" id="btnFirst" onclick="goToPage(1)">&laquo; First</button>
+          <button class="pag-btn" id="btnPrev" onclick="changePage(-1)">&lsaquo; Prev</button>
+          <span id="currPageLabel" style="font-weight:600;color:#2563eb;padding:0 6px;">1 / 1</span>
+          <button class="pag-btn" id="btnNext" onclick="changePage(1)">Next &rsaquo;</button>
+          <button class="pag-btn" id="btnLast" onclick="goToLastPage()">Last &raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Grant / Extend Subscription -->
+<div class="modal-overlay" id="grantModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 style="margin:0;font-size:0.95rem;font-weight:600;">Grant / Extend Subscription</h3>
+      <button onclick="closeGrantModal()" style="border:none;background:transparent;cursor:pointer;font-size:1.1rem;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">User UID *</label>
+          <input type="number" id="grantUID" placeholder="Enter User UID (e.g. 95055)" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Choose Plan / Extension Duration</label>
+          <select id="grantPlanOption" onchange="onGrantPlanChange()" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;">
+            <option value="15">Extend 15 Days (Free Trial Extension)</option>
+            <option value="30" selected>Monthly Plan (30 Days)</option>
+            <option value="90">Quarterly Plan (90 Days)</option>
+            <option value="365">Annual Plan (365 Days)</option>
+            <option value="custom">Custom Date</option>
+          </select>
+        </div>
+        <div id="customDateRow" style="display:none;">
+          <label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">New Validity Date</label>
+          <input type="date" id="grantCustomDate" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;">
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="closeGrantModal()">Cancel</button>
+          <button class="btn btn-success btn-sm" onclick="submitGrant()">Confirm Grant</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTab = 'expired_unpaid';
+let currentPage = 1;
+let totalPages = 1;
+let searchTimer = null;
+
+async function init() {
+  const u = await initAdminPage('subscriptions');
+  if (!u) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedTab = urlParams.get('tab');
+  if (requestedTab && ['expired_unpaid', 'payments', 'paid_users', 'active_trials'].includes(requestedTab)) {
+    currentTab = requestedTab;
+    document.querySelectorAll('.tp-btn').forEach(b => b.classList.remove('active'));
+    if (requestedTab === 'expired_unpaid') document.getElementById('tabExpiredUnpaid').classList.add('active');
+    if (requestedTab === 'payments') document.getElementById('tabPayments').classList.add('active');
+    if (requestedTab === 'paid_users') document.getElementById('tabPaidUsers').classList.add('active');
+    if (requestedTab === 'active_trials') document.getElementById('tabActiveTrials').classList.add('active');
+  }
+
+  loadTableData();
+}
+
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tp-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const titles = {
+    'expired_unpaid': 'Trial Used But Not Paid',
+    'payments': 'Payment Transactions Log',
+    'paid_users': 'Paid Active Subscribers',
+    'active_trials': 'Active Free Trial Users'
+  };
+  document.getElementById('tblCardTitle').textContent = titles[tab] || 'Subscriptions';
+
+  currentPage = 1;
+  loadTableData();
+}
+
+function onSearchTyping() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage = 1;
+    loadTableData();
+  }, 200);
+}
+
+async function loadTableData() {
+  const wrap = document.getElementById('salesTableWrap');
+  wrap.innerHTML = '<div style="padding:24px;text-align:center;"><span class="spinner"></span> Loading...</div>';
+
+  const q = (document.getElementById('srchSales').value || '').trim();
+  const url = `/api/admin/sales-analytics?page=${currentPage}&limit=10&tab=${currentTab}&q=${encodeURIComponent(q)}`;
+
+  try {
+    const res = await API.get(url);
+    if (!res || !res.success || !res.data) {
+      wrap.innerHTML = '<div class="empty-state">Failed to load sales data</div>';
+      return;
+    }
+
+    const { kpis, total, page, totalPages: tp, list } = res.data;
+    currentPage = page;
+    totalPages = tp;
+
+    // Update KPIs
+    if (kpis) {
+      document.getElementById('statRevenue').textContent = '₹' + Number(kpis.totalRevenue || 0).toLocaleString('en-IN');
+      document.getElementById('statTransactions').textContent = `${kpis.totalTransactions} Total Transactions`;
+      document.getElementById('statPaidSubscribers').textContent = Number(kpis.paidUsersCount || 0).toLocaleString('en-IN');
+      document.getElementById('statActiveTrials').textContent = Number(kpis.activeTrialCount || 0).toLocaleString('en-IN');
+      document.getElementById('statExpiredUnpaid').textContent = Number(kpis.trialExpiredUnpaidCount || 0).toLocaleString('en-IN');
+    }
+
+    document.getElementById('recordsCountBadge').textContent = `${total.toLocaleString('en-IN')} Records`;
+    const startIdx = total === 0 ? 0 : (currentPage - 1) * 10 + 1;
+    const endIdx = Math.min(currentPage * 10, total);
+    document.getElementById('pagRangeInfo').textContent = `Showing ${startIdx}–${endIdx} of ${total.toLocaleString('en-IN')}`;
+    document.getElementById('currPageLabel').textContent = `${currentPage} / ${totalPages}`;
+
+    document.getElementById('btnFirst').disabled = (currentPage <= 1);
+    document.getElementById('btnPrev').disabled  = (currentPage <= 1);
+    document.getElementById('btnNext').disabled  = (currentPage >= totalPages);
+    document.getElementById('btnLast').disabled  = (currentPage >= totalPages);
+
+    if (!list || list.length === 0) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">No records found</div>';
+      return;
+    }
+
+    // Render 10 Rows depending on tab
+    if (currentTab === 'expired_unpaid') {
+      wrap.innerHTML = renderExpiredUnpaidTable(list, startIdx);
+    } else if (currentTab === 'payments') {
+      wrap.innerHTML = renderPaymentsTable(list, startIdx);
+    } else if (currentTab === 'paid_users') {
+      wrap.innerHTML = renderPaidUsersTable(list, startIdx);
+    } else if (currentTab === 'active_trials') {
+      wrap.innerHTML = renderActiveTrialsTable(list, startIdx);
+    }
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty-state">Error querying data</div>';
+  }
+}
+
+function renderExpiredUnpaidTable(list, startIdx) {
+  const rows = list.map((u, i) => {
+    const rowNum = startIdx + i;
+    const valStr = u.Validity ? new Date(u.Validity).toLocaleDateString('en-IN') : '-';
+    const regStr = u.RegisteredOn ? new Date(u.RegisteredOn).toLocaleDateString('en-IN') : '-';
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.75rem;width:35px;">${rowNum}</td>
+      <td><strong style="color:#2563eb;">${u.UID}</strong></td>
+      <td>${u.Mobile || '-'}</td>
+      <td><span class="subuser-pill" style="background:#fef2f2;color:#b91c1c;">Expired ${u.DaysSinceExpired || 0}d ago</span></td>
+      <td style="font-size:0.78rem;">${regStr}</td>
+      <td style="font-size:0.78rem;color:#b91c1c;font-weight:600;">${valStr}</td>
+      <td><span class="badge-danger">Not Paid</span></td>
+      <td>
+        <button class="btn btn-primary btn-xs" onclick="quickGrantModal('${u.UID}')" title="Grant plan to this user">
+          &#10010; Grant Plan
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="adm-tbl">
+    <thead>
+      <tr>
+        <th style="width:35px;">#</th>
+        <th>UID</th>
+        <th>Mobile</th>
+        <th>Status Info</th>
+        <th>Registered</th>
+        <th>Trial Expired Date</th>
+        <th>Payment Status</th>
+        <th style="width:100px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderPaymentsTable(list, startIdx) {
+  const rows = list.map((p, i) => {
+    const rowNum = startIdx + i;
+    const dateStr = p.CreatedAt ? new Date(p.CreatedAt).toLocaleString('en-IN') : '-';
+    const isSuccess = (p.PaymentStatus === 'SUCCESS' || p.PaymentStatus === 'paid');
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.75rem;width:35px;">${rowNum}</td>
+      <td><strong>${p.RazorpayPaymentId || p.RazorpayOrderId || 'MANUAL'}</strong></td>
+      <td><strong style="color:#2563eb;">${p.UID}</strong></td>
+      <td>${p.Mobile || '-'}</td>
+      <td>${p.PlanName || '-'}</td>
+      <td style="font-weight:700;color:#059669;">₹${parseFloat(p.Amount || 0).toLocaleString('en-IN')}</td>
+      <td><span class="${isSuccess ? 'badge-success' : 'badge-danger'}">${p.PaymentStatus || 'PENDING'}</span></td>
+      <td style="font-size:0.75rem;color:var(--muted);">${dateStr}</td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="adm-tbl">
+    <thead>
+      <tr>
+        <th style="width:35px;">#</th>
+        <th>Payment Ref / ID</th>
+        <th>UID</th>
+        <th>Mobile</th>
+        <th>Plan</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderPaidUsersTable(list, startIdx) {
+  const rows = list.map((u, i) => {
+    const rowNum = startIdx + i;
+    const valStr = u.Validity ? new Date(u.Validity).toLocaleDateString('en-IN') : '-';
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.75rem;width:35px;">${rowNum}</td>
+      <td><strong style="color:#2563eb;">${u.UID}</strong></td>
+      <td>${u.Mobile || '-'}</td>
+      <td style="font-weight:700;color:#059669;">₹${parseFloat(u.TotalSpent || 0).toLocaleString('en-IN')}</td>
+      <td style="font-size:0.78rem;">${valStr}</td>
+      <td><span class="badge-success">Paid Subscriber</span></td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="quickGrantModal('${u.UID}')">Extend</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="adm-tbl">
+    <thead>
+      <tr>
+        <th style="width:35px;">#</th>
+        <th>UID</th>
+        <th>Mobile</th>
+        <th>Total Paid</th>
+        <th>Current Validity</th>
+        <th>Status</th>
+        <th style="width:80px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderActiveTrialsTable(list, startIdx) {
+  const rows = list.map((u, i) => {
+    const rowNum = startIdx + i;
+    const valStr = u.Validity ? new Date(u.Validity).toLocaleDateString('en-IN') : '-';
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.75rem;width:35px;">${rowNum}</td>
+      <td><strong style="color:#2563eb;">${u.UID}</strong></td>
+      <td>${u.Mobile || '-'}</td>
+      <td><span class="subuser-pill" style="background:#e0f2fe;color:#0369a1;">${u.TrialDaysLeft || 0} days remaining</span></td>
+      <td style="font-size:0.78rem;">${valStr}</td>
+      <td><span class="badge-warn">Evaluating Trial</span></td>
+      <td>
+        <button class="btn btn-secondary btn-xs" onclick="quickGrantModal('${u.UID}')">Upgrade Plan</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="adm-tbl">
+    <thead>
+      <tr>
+        <th style="width:35px;">#</th>
+        <th>UID</th>
+        <th>Mobile</th>
+        <th>Trial Remaining</th>
+        <th>Trial Expiry Date</th>
+        <th>Status</th>
+        <th style="width:100px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function changePage(d) {
+  const p = currentPage + d;
+  if (p >= 1 && p <= totalPages) { currentPage = p; loadTableData(); }
+}
+function goToPage(p) { currentPage = p; loadTableData(); }
+function goToLastPage() { currentPage = totalPages; loadTableData(); }
+
+// Grant Modal
+function openGrantModal() {
+  document.getElementById('grantModal').style.display = 'flex';
+}
+function closeGrantModal() {
+  document.getElementById('grantModal').style.display = 'none';
+}
+function quickGrantModal(uid) {
+  document.getElementById('grantUID').value = uid;
+  openGrantModal();
+}
+function onGrantPlanChange() {
+  const val = document.getElementById('grantPlanOption').value;
+  document.getElementById('customDateRow').style.display = val === 'custom' ? 'block' : 'none';
+}
+
+async function submitGrant() {
+  const uid = document.getElementById('grantUID').value.trim();
+  const option = document.getElementById('grantPlanOption').value;
+
+  if (!uid) { alert('Please enter User UID'); return; }
+
+  let payload = { uid };
+  if (option === 'custom') {
+    const customDate = document.getElementById('grantCustomDate').value;
+    if (!customDate) { alert('Please select custom date'); return; }
+    payload.newValidityDate = customDate;
+    payload.planName = 'Admin Custom Validity Grant';
+  } else {
+    payload.days = parseInt(option);
+    payload.planName = option === '15' ? '15 Days Trial Extension' : (option === '30' ? 'Monthly Plan Grant' : (option === '90' ? 'Quarterly Plan Grant' : 'Annual Plan Grant'));
+  }
+
+  try {
+    const res = await API.post('/api/admin/extend-subscription', payload);
+    if (res && res.success) {
+      alert('Subscription granted successfully! New validity: ' + res.validity);
+      closeGrantModal();
+      loadTableData();
+    } else {
+      alert(res?.message || 'Error granting subscription');
+    }
+  } catch (e) {
+    alert('Grant error: ' + e.message);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

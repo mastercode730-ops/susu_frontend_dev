@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Configurations - Susu9 Admin</title>
+<script src="/js/theme-preload.js"></script>
+<link rel="stylesheet" href="/css/main.css">
+<style>
+.adm-shell { padding: 4px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.top-bar h1 { margin: 0; font-size: 1.3rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* Config Cards Grid */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.cfg-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cfg-card-header {
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cfg-card-title {
+  margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text, #1e293b);
+  display: flex; align-items: center; gap: 8px;
+}
+.cfg-card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+/* Plan editor boxes */
+.plan-item-box {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plan-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+.plan-row-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+}
+.input-label { font-size: 0.72rem; font-weight: 600; color: var(--muted, #64748b); display: block; margin-bottom: 2px; }
+.form-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* Toggle Switch */
+.switch-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.switch-toggle {
+  position: relative; width: 44px; height: 24px; background: #cbd5e1;
+  border-radius: 12px; transition: background .2s;
+}
+.switch-toggle::after {
+  content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px;
+  background: #fff; border-radius: 50%; transition: transform .2s;
+}
+input[type="checkbox"]:checked + .switch-toggle { background: #10b981; }
+input[type="checkbox"]:checked + .switch-toggle::after { transform: translateX(20px); }
+</style>
+</head>
+<body>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+
+<div class="adm-shell">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div>
+      <h1>Platform & Subscription Configurations</h1>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Customize Trial Duration, Subscription Pricing Plans, Broadcast Notices & Maintenance</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="loadConfigs()">&#8635; Reload Settings</button>
+      <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+    </div>
+  </div>
+
+  <div class="config-grid">
+    <!-- 1. FREE TRIAL DURATION CARD -->
+    <div class="cfg-card">
+      <div class="cfg-card-header">
+        <h2 class="cfg-card-title"><span>&#127881;</span> Free Trial Settings</h2>
+        <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:600;font-size:0.75rem;">Self Signup</span>
+      </div>
+      <div class="cfg-card-body">
+        <div>
+          <label class="input-label" for="numTrialDays">Free Trial Duration (in Days) *</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+            <input type="number" id="numTrialDays" min="1" max="365" class="form-input" style="max-width:140px;font-size:1.1rem;font-weight:700;color:#2563eb;" value="15">
+            <span style="font-weight:600;color:var(--muted);font-size:0.85rem;">Days</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:8px;line-height:1.4;">
+            Every newly registered user will automatically receive this trial period upon sign up. When it expires, their access is gated until they purchase a plan.
+          </div>
+        </div>
+
+        <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border);">
+          <button class="btn btn-success btn-sm" onclick="saveTrialDays()">Save Trial Days</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MAINTENANCE MODE & ANNOUNCEMENT -->
+    <div class="cfg-card">
+      <div class="cfg-card-header">
+        <h2 class="cfg-card-title"><span>&#128227;</span> Broadcast & Maintenance</h2>
+      </div>
+      <div class="cfg-card-body">
+        <div>
+          <label class="switch-label">
+            <input type="checkbox" id="chkMaintenance" style="display:none;" onchange="updateMaintenanceText()">
+            <span class="switch-toggle"></span>
+            <span style="font-weight:600;font-size:0.85rem;" id="lblMaintStatus">Maintenance Mode: OFF</span>
+          </label>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px;">
+            When active, only SuperAdmin can log in. Users will see a maintenance message.
+          </div>
+        </div>
+
+        <div>
+          <label class="input-label" for="txtNotice">System Broadcast Notice (Top Banner)</label>
+          <textarea id="txtNotice" rows="2" class="form-input" placeholder="Enter announcement notice shown to users on their home screen..." style="resize:vertical;font-size:0.8rem;"></textarea>
+        </div>
+
+        <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border);">
+          <button class="btn btn-success btn-sm" onclick="saveBroadcastAndMaintenance()">Save Announcement & Mode</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. SUBSCRIPTION PLANS PRICING MANAGER -->
+  <div class="cfg-card">
+    <div class="cfg-card-header">
+      <h2 class="cfg-card-title"><span>&#128179;</span> Subscription Plans & Pricing Configuration</h2>
+      <button class="btn btn-primary btn-sm" onclick="addNewPlanField()">&#10010; Add Custom Plan</button>
+    </div>
+    <div class="cfg-card-body">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px;">
+        These plans are shown to users on the <strong>Subscription & Payment Gateway Screen</strong> with Razorpay. You can customize the name, duration (days), price (₹), and promotional badge.
+      </div>
+
+      <div id="plansContainer" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px;">
+        <!-- Dynamically rendered plans -->
+      </div>
+
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+        <button class="btn btn-success" onclick="saveSubscriptionPlans()" style="padding:8px 20px;font-weight:600;">Save All Subscription Plans</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPlans = [];
+
+async function init() {
+  const u = await initAdminPage('configurations');
+  if (!u) return;
+
+  loadConfigs();
+}
+
+async function loadConfigs() {
+  try {
+    const res = await API.get('/api/admin/configurations');
+    if (!res || !res.success || !res.data) return;
+
+    const d = res.data;
+    document.getElementById('numTrialDays').value = d.freeTrialDays || 15;
+    document.getElementById('chkMaintenance').checked = d.maintenanceMode === true;
+    updateMaintenanceText();
+    document.getElementById('txtNotice').value = d.broadcastNotice || '';
+
+    currentPlans = (d.subscriptionPlans && d.subscriptionPlans.length > 0) ? d.subscriptionPlans : [
+      { id: 'monthly', name: 'Monthly Plan', days: 30, amount: 999, badge: 'Popular' },
+      { id: 'quarterly', name: '3 Months Plan', days: 90, amount: 2499, badge: 'Save 15%' },
+      { id: 'yearly', name: 'Annual Plan', days: 365, amount: 7999, badge: 'Best Value' }
+    ];
+
+    renderPlans();
+  } catch (err) {
+    console.error('Failed to load configs', err);
+  }
+}
+
+function updateMaintenanceText() {
+  const isChecked = document.getElementById('chkMaintenance').checked;
+  document.getElementById('lblMaintStatus').textContent = isChecked ? 'Maintenance Mode: ON' : 'Maintenance Mode: OFF';
+  document.getElementById('lblMaintStatus').style.color = isChecked ? '#b91c1c' : '#1e293b';
+}
+
+function renderPlans() {
+  const container = document.getElementById('plansContainer');
+  container.innerHTML = currentPlans.map((p, idx) => `
+    <div class="plan-item-box" id="planBox_${idx}">
+      <div class="plan-item-header">
+        <span>Plan #${idx + 1}</span>
+        <button onclick="removePlan(${idx})" style="border:none;background:transparent;color:#b91c1c;cursor:pointer;font-weight:700;font-size:0.8rem;" title="Delete this plan">&times; Delete</button>
+      </div>
+      <div class="plan-row-inputs">
+        <div>
+          <label class="input-label">Plan Name</label>
+          <input type="text" class="form-input" id="planName_${idx}" value="${p.name || ''}" placeholder="e.g. Monthly Plan">
+        </div>
+        <div>
+          <label class="input-label">Duration (Days)</label>
+          <input type="number" class="form-input" id="planDays_${idx}" value="${p.days || 30}" placeholder="30">
+        </div>
+        <div>
+          <label class="input-label">Price (₹)</label>
+          <input type="number" class="form-input" id="planAmount_${idx}" value="${p.amount || 0}" placeholder="999">
+        </div>
+        <div>
+          <label class="input-label">Promo Badge</label>
+          <input type="text" class="form-input" id="planBadge_${idx}" value="${p.badge || ''}" placeholder="e.g. Best Value">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addNewPlanField() {
+  currentPlans.push({
+    id: 'custom_' + Date.now(),
+    name: 'Custom Plan',
+    days: 60,
+    amount: 1499,
+    badge: 'Special'
+  });
+  renderPlans();
+}
+
+function removePlan(idx) {
+  if (currentPlans.length <= 1) {
+    alert('At least one plan must remain active.');
+    return;
+  }
+  currentPlans.splice(idx, 1);
+  renderPlans();
+}
+
+async function saveTrialDays() {
+  const days = parseInt(document.getElementById('numTrialDays').value);
+  if (!days || days < 1) { alert('Enter valid number of days'); return; }
+
+  try {
+    const res = await API.post('/api/admin/configurations', { freeTrialDays: days });
+    if (res && res.success) {
+      alert('Free Trial Days successfully updated to ' + days + ' days!');
+    } else {
+      alert(res?.message || 'Error saving trial days');
+    }
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+async function saveBroadcastAndMaintenance() {
+  const maintenanceMode = document.getElementById('chkMaintenance').checked;
+  const broadcastNotice = document.getElementById('txtNotice').value.trim();
+
+  try {
+    const res = await API.post('/api/admin/configurations', { maintenanceMode, broadcastNotice });
+    if (res && res.success) {
+      alert('Broadcast notice and maintenance settings saved successfully!');
+    } else {
+      alert(res?.message || 'Error saving settings');
+    }
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+async function saveSubscriptionPlans() {
+  const updatedPlans = currentPlans.map((p, idx) => {
+    return {
+      id: p.id || ('plan_' + idx),
+      name: document.getElementById('planName_' + idx).value.trim(),
+      days: parseInt(document.getElementById('planDays_' + idx).value) || 30,
+      amount: parseFloat(document.getElementById('planAmount_' + idx).value) || 0,
+      badge: document.getElementById('planBadge_' + idx).value.trim()
+    };
+  });
+
+  try {
+    const res = await API.post('/api/admin/configurations', { subscriptionPlans: updatedPlans });
+    if (res && res.success) {
+      alert('Subscription Plans updated successfully!');
+      currentPlans = updatedPlans;
+      renderPlans();
+    } else {
+      alert(res?.message || 'Error updating plans');
+    }
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
