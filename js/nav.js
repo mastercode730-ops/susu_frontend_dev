@@ -129,6 +129,7 @@ function renderShell(active) {
         <span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
       </button>
       <button class="more"><a href="https://wa.me/+17073166800" target="_blank"><i class="fa fa-whatsapp" style="font-size:22px;color:white;"></i></a></button>
+      <div id="headerSubBadgeWrap" style="display:inline-flex;align-items:center;margin-right:8px;"></div>
       <button class="more" onclick="location.href='/pages/home.html'"><i class="fas fa-home" style="color:white;"></i></button>
       <div class="nav-toggle"><button class="btn btn-toggle toggle-sidebar"><i class="icon-menu"></i></button></div>
     </div>
@@ -171,6 +172,7 @@ function renderShell(active) {
           ${item('pl-yantri', '/pages/pl-yantri.html', 'fas fa-chart-line', 'P&L Yantri')}
           ${item('yantri', '/pages/yantri.html', 'fas fa-sort-numeric-up', 'Yantri')}
           ${item('absent-customers', '/pages/absent-customers.html', 'fas fa-user-times', 'Absent Report')}
+          ${item('subscription', '/pages/subscription.html', 'fas fa-gem', 'Subscription')}
           ${item('change-password', '/pages/change-password.html', 'fas fa-user-lock', 'Change Password')}
           <li class="nav-item" id="nav-admin" style="display:none;">
             <a href="/pages/admin/dashboard.html">
@@ -216,7 +218,28 @@ function _applyUserPermissions(u, active) {
     }
   }
 
+  // Subscription badge update for Admin
+  const badgeWrap = document.getElementById('headerSubBadgeWrap');
+  if (badgeWrap) {
+    if (u.SubUID) {
+      badgeWrap.style.display = 'none';
+    } else if (u.validity) {
+      const days = u.daysRemaining !== undefined ? u.daysRemaining : 0;
+      const isExp = !!u.isExpired;
+      const bg = isExp ? '#ef4444' : (days <= 3 ? '#f59e0b' : '#10b981');
+      const text = isExp ? 'Expired' : (days + 'd left');
+      badgeWrap.innerHTML = `
+        <a href="/pages/subscription.html" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); padding:3px 10px; border-radius:14px; color:#fff; font-size:11px; font-weight:800; cursor:pointer;" title="Subscription & Plans">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${bg}; box-shadow:0 0 6px ${bg};"></span>
+          <span>${text}</span>
+        </a>
+      `;
+      badgeWrap.style.display = 'inline-flex';
+    }
+  }
+
   if (u.SubUID) {
+    _hide('nav-subscription');
     const isTrue = v => v === true || v === 1 || String(v).toLowerCase() === 'true' || String(v) === '1';
 
     // Only checked menus are visible, everything else is hidden
@@ -299,6 +322,12 @@ async function initPage(active) {
 
     localStorage.setItem('susu9_user', JSON.stringify(u));
     if (!_applyUserPermissions(u, active)) return null;
+
+    // Gate: If subscription expired and not on subscription page, redirect
+    if (u.isExpired && !u.SubUID && active !== 'subscription') {
+      window.location.href = '/pages/subscription.html?expired=1';
+      return null;
+    }
 
     await vendorPromise;
     return u;

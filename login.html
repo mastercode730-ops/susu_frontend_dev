@@ -172,7 +172,7 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('newuser')">&times;</button>
     <div class="modal-title">New User Registration</div>
-    <div class="modal-sub">Apna mobile number aur password dalkar naya account banayein</div>
+    <div class="modal-sub"><strong style="color:#1572e8;">15 Din Ka Free Trial!</strong> Apna mobile number aur password dalkar turant account banayein.</div>
     <div class="form-group">
       <label>Mobile Number</label>
       <input type="text" id="nu-mobile" placeholder="10 digit mobile number" maxlength="10">
@@ -218,7 +218,11 @@ async function doLogin() {
     if (data.success) {
       localStorage.setItem('susu9_token', data.token);
       localStorage.setItem('susu9_user', JSON.stringify(data.user));
-      window.location.href = '/pages/home.html';
+      if (data.expired) {
+        window.location.href = '/pages/subscription.html?expired=1';
+      } else {
+        window.location.href = '/pages/home.html';
+      }
     }
     else { showErr(err, data.message||'Invalid credentials'); btn.disabled=false; btn.textContent='LOGIN'; }
   } catch(e) { showErr(err,'Server error. Try again.'); btn.disabled=false; btn.textContent='LOGIN'; }
@@ -349,7 +353,7 @@ async function doRegister() {
     const data = await res.json();
     btn.disabled=false; btn.textContent='CREATE ACCOUNT';
     if (data.success) {
-      showOk(ok, data.message || 'Account create ho gaya! Ab login karein.');
+      showOk(ok, data.message || 'Account create ho gaya! 15 din ka Free Trial shuru ho gaya hai. Ab login karein.');
       document.getElementById('nu-mobile').value=''; document.getElementById('nu-password').value=''; document.getElementById('nu-confirm').value='';
     } else showErr(err, data.message||'Kuch galat ho gaya');
   } catch(e) { btn.disabled=false; btn.textContent='CREATE ACCOUNT'; showErr(err,'Server error. Try again.'); }

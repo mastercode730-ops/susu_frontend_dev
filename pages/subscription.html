@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscription & Plans - Susu9</title>
+<script src="/js/theme-preload.js"></script>
+<link rel="stylesheet" href="/css/main.css">
+<!-- Razorpay Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+.sub-hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1572e8 50%, #0284c7 100%);
+  border-radius: 12px;
+  padding: 24px 28px;
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 25px -5px rgba(21, 114, 232, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.sub-hero h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #fff;
+}
+.sub-hero p {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.sub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+}
+.sub-badge.active { background: rgba(34, 197, 94, 0.25); border-color: #4ade80; color: #f0fdf4; }
+.sub-badge.expired { background: rgba(239, 68, 68, 0.3); border-color: #f87171; color: #fef2f2; }
+.sub-badge.warning { background: rgba(245, 158, 11, 0.3); border-color: #fbbf24; color: #fffbeb; }
+
+.plan-card {
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.12);
+}
+.plan-card.popular {
+  border-color: #1572e8;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -4px rgba(21, 114, 232, 0.2);
+}
+.plan-card.best-value {
+  border-color: #10b981;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.2);
+}
+.plan-tag {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1572e8;
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.plan-tag.green { background: #10b981; }
+
+.plan-name { font-size: 1.2rem; font-weight: 800; color: #111827; margin-bottom: 8px; }
+.plan-price { font-size: 2.2rem; font-weight: 900; color: #111827; margin: 12px 0 4px 0; }
+.plan-price span { font-size: 0.95rem; font-weight: 600; color: #6b7280; }
+.plan-savings { font-size: 0.85rem; font-weight: 700; color: #059669; min-height: 20px; }
+.plan-desc { font-size: 0.88rem; color: #6b7280; margin: 12px 0 20px 0; border-bottom: 1px solid #f3f4f6; padding-bottom: 14px; }
+
+.plan-features { list-style: none; padding: 0; margin: 0 0 24px 0; flex-grow: 1; }
+.plan-features li { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #374151; font-weight: 600; margin-bottom: 10px; }
+.plan-features li i { color: #10b981; font-size: 1rem; }
+
+.btn-plan {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  background: #1572e8;
+  color: #fff;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-plan:hover { background: #1263cb; transform: scale(1.02); }
+.btn-plan.btn-popular { background: #1572e8; }
+.btn-plan.btn-best { background: #10b981; }
+.btn-plan.btn-best:hover { background: #059669; }
+
+.expired-banner {
+  background: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.history-table th { background: #f3f4f6 !important; color: #374151 !important; font-weight: 800 !important; }
+.history-table td { font-size: 0.88rem !important; }
+.badge-success { background: #10b981; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: 700; }
+.badge-danger { background: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="content">
+  <div class="row">
+    <div class="col-md-12">
+
+      <!-- Expired alert if redirected -->
+      <div id="expiredAlert" class="expired-banner" style="display:none;">
+        <i class="fa fa-exclamation-triangle" style="font-size: 20px;"></i>
+        <div>
+          <span>Aapka 15-day Free Trial ya Subscription expire ho chuka hai. Kripya niche diye gaye kisi bhi plan ko choose karke online payment karein taaki portal turant unlock ho jaye.</span>
+        </div>
+      </div>
+
+      <!-- Current Subscription Status Hero -->
+      <div class="sub-hero">
+        <div>
+          <h2>Manage Subscription & Plans</h2>
+          <p id="heroSubDetails">Loading subscription status...</p>
+        </div>
+        <div id="heroSubBadgeWrap">
+          <div class="sub-badge">Checking...</div>
+        </div>
+      </div>
+
+      <!-- Plan Cards Row -->
+      <div class="row" style="margin-bottom: 30px;">
+        <!-- Monthly -->
+        <div class="col-md-4 col-sm-12" style="margin-bottom: 20px;">
+          <div class="plan-card">
+            <div>
+              <div class="plan-name">Monthly Plan</div>
+              <div class="plan-price">₹999 <span>/ 30 Days</span></div>
+              <div class="plan-savings">Standard Access</div>
+              <div class="plan-desc">Perfect for regular monthly portal operations.</div>
+              <ul class="plan-features">
+                <li><i class="fa fa-check-circle"></i> 30 Days Full Portal Access</li>
+                <li><i class="fa fa-check-circle"></i> Unlimited Sub Users & Contacts</li>
+                <li><i class="fa fa-check-circle"></i> Real-time Chat & Yantri</li>
+                <li><i class="fa fa-check-circle"></i> Complete Hisab & Ledgers</li>
+                <li><i class="fa fa-check-circle"></i> Instant Activation</li>
+              </ul>
+            </div>
+            <button class="btn-plan" onclick="payPlan('monthly', 999, 'Monthly Plan')">
+              <i class="fa fa-lock"></i> Subscribe for ₹999
+            </button>
+          </div>
+        </div>
+
+        <!-- Quarterly -->
+        <div class="col-md-4 col-sm-12" style="margin-bottom: 20px;">
+          <div class="plan-card popular">
+            <div class="plan-tag">Most Popular</div>
+            <div>
+              <div class="plan-name">Quarterly Plan</div>
+              <div class="plan-price">₹2,499 <span>/ 90 Days</span></div>
+              <div class="plan-savings"><i class="fa fa-tag"></i> Save ₹498 (17% OFF)</div>
+              <div class="plan-desc">Best for quarterly settlement with discounted price.</div>
+              <ul class="plan-features">
+                <li><i class="fa fa-check-circle"></i> 90 Days Full Portal Access</li>
+                <li><i class="fa fa-check-circle"></i> Unlimited Sub Users & Contacts</li>
+                <li><i class="fa fa-check-circle"></i> Real-time Chat & Yantri</li>
+                <li><i class="fa fa-check-circle"></i> Complete Hisab & Ledgers</li>
+                <li><i class="fa fa-check-circle"></i> Priority WhatsApp Support</li>
+              </ul>
+            </div>
+            <button class="btn-plan btn-popular" onclick="payPlan('quarterly', 2499, 'Quarterly Plan')">
+              <i class="fa fa-star"></i> Subscribe for ₹2,499
+            </button>
+          </div>
+        </div>
+
+        <!-- Yearly -->
+        <div class="col-md-4 col-sm-12" style="margin-bottom: 20px;">
+          <div class="plan-card best-value">
+            <div class="plan-tag green">Best Value</div>
+            <div>
+              <div class="plan-name">Yearly Plan</div>
+              <div class="plan-price">₹7,999 <span>/ 365 Days</span></div>
+              <div class="plan-savings"><i class="fa fa-tag"></i> Save ₹3,989 (33% OFF)</div>
+              <div class="plan-desc">Maximum savings for long term peace of mind.</div>
+              <ul class="plan-features">
+                <li><i class="fa fa-check-circle"></i> 365 Days (1 Full Year) Access</li>
+                <li><i class="fa fa-check-circle"></i> Unlimited Sub Users & Contacts</li>
+                <li><i class="fa fa-check-circle"></i> Real-time Chat & Yantri</li>
+                <li><i class="fa fa-check-circle"></i> Complete Hisab & Ledgers</li>
+                <li><i class="fa fa-check-circle"></i> Dedicated Priority Support</li>
+              </ul>
+            </div>
+            <button class="btn-plan btn-best" onclick="payPlan('yearly', 7999, 'Yearly Plan')">
+              <i class="fa fa-trophy"></i> Subscribe for ₹7,999
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment History Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Payment & Renewal History</div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover history-table" style="text-align:center;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Plan</th>
+                  <th>Amount</th>
+                  <th>Razorpay Payment ID</th>
+                  <th>Valid Till</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="paymentHistoryBody">
+                <tr><td colspan="7">Loading history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let currentSubData = null;
+
+async function init() {
+  const u = await initPage('subscription');
+  if (!u) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('expired') === '1' || u.isExpired) {
+    document.getElementById('expiredAlert').style.display = 'flex';
+  }
+
+  await loadSubscriptionStatus();
+}
+
+async function loadSubscriptionStatus() {
+  try {
+    const res = await API.get('/api/subscription/status');
+    if (!res || !res.success) return;
+    const d = res.data;
+    currentSubData = d;
+
+    const heroDetails = document.getElementById('heroSubDetails');
+    const badgeWrap = document.getElementById('heroSubBadgeWrap');
+
+    const valFormatted = d.validity ? new Date(d.validity).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : 'None';
+
+    if (d.isExpired) {
+      heroDetails.innerHTML = `Aapka subscription <strong>${valFormatted}</strong> ko expire ho chuka hai. Naya plan chun kar turant renew karein.`;
+      badgeWrap.innerHTML = `<div class="sub-badge expired"><i class="fa fa-times-circle"></i> Expired (${valFormatted})</div>`;
+    } else if (d.isTrial) {
+      heroDetails.innerHTML = `Aapka <strong>15-Day Free Trial</strong> chal raha hai. Valid till: <strong>${valFormatted}</strong> (${d.daysRemaining} days remaining).`;
+      const badgeCls = d.daysRemaining <= 3 ? 'warning' : 'active';
+      badgeWrap.innerHTML = `<div class="sub-badge ${badgeCls}"><i class="fa fa-gift"></i> Free Trial: ${d.daysRemaining} Days Left</div>`;
+    } else {
+      heroDetails.innerHTML = `Aapka active subscription <strong>${valFormatted}</strong> tak valid hai (${d.daysRemaining} days remaining).`;
+      const badgeCls = d.daysRemaining <= 5 ? 'warning' : 'active';
+      badgeWrap.innerHTML = `<div class="sub-badge ${badgeCls}"><i class="fa fa-check-circle"></i> Active: ${d.daysRemaining} Days Left</div>`;
+    }
+
+    // Render History
+    const tbody = document.getElementById('paymentHistoryBody');
+    if (d.history && d.history.length > 0) {
+      tbody.innerHTML = d.history.map((h, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${h.CreatedAt ? new Date(h.CreatedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-'}</td>
+          <td><strong>${h.PlanName}</strong> (${h.PlanDays} days)</td>
+          <td>₹${Number(h.Amount).toLocaleString('en-IN')}</td>
+          <td><code>${h.RazorpayPaymentId || '-'}</code></td>
+          <td>${h.NewValidity ? new Date(h.NewValidity).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '-'}</td>
+          <td><span class="${h.PaymentStatus === 'SUCCESS' ? 'badge-success' : 'badge-danger'}">${h.PaymentStatus}</span></td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="7" style="color:#6b7280;padding:20px;">Abhi tak koi payment history nahi hai.</td></tr>';
+    }
+
+  } catch (err) {
+    console.error('Failed to load status:', err);
+  }
+}
+
+async function payPlan(planId, amount, planName) {
+  try {
+    if (typeof Razorpay === 'undefined') {
+      alert('Razorpay Checkout SDK is still loading, please wait 2 seconds.');
+      return;
+    }
+
+    // 1. Create order
+    const orderRes = await API.post('/api/subscription/create-order', { planId });
+    if (!orderRes || !orderRes.success) {
+      swal('Error', orderRes?.message || 'Order create karne me problem aayi', 'error');
+      return;
+    }
+
+    const { orderId, keyId, plan } = orderRes;
+
+    // 2. Open Razorpay options
+    const options = {
+      key: keyId,
+      amount: orderRes.amount,
+      currency: orderRes.currency,
+      name: 'SUSU9 Portal',
+      description: planName + ' Subscription',
+      image: '/vendor/assets/img/icon.ico',
+      order_id: orderId,
+      prefill: {
+        contact: currentSubData?.mobile || ''
+      },
+      theme: {
+        color: '#1572e8'
+      },
+      handler: async function (response) {
+        // 3. Verify Payment
+        try {
+          const verifyRes = await API.post('/api/subscription/verify-payment', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            planId
+          });
+
+          if (verifyRes && verifyRes.success) {
+            swal('Payment Successful!', `${planName} activate ho gaya hai! Valid till ${verifyRes.validity}`, 'success').then(() => {
+              // Update local user state
+              const userStr = localStorage.getItem('susu9_user');
+              if (userStr) {
+                try {
+                  const u = JSON.parse(userStr);
+                  u.isExpired = false;
+                  u.validity = verifyRes.validity;
+                  localStorage.setItem('susu9_user', JSON.stringify(u));
+                } catch(e) {}
+              }
+              window.location.href = '/pages/home.html';
+            });
+          } else {
+            swal('Verification Failed', verifyRes?.message || 'Payment verify nahi ho saka', 'error');
+            await loadSubscriptionStatus();
+          }
+        } catch (vErr) {
+          console.error('Verification error:', vErr);
+          swal('Error', 'Payment verify karne me problem aayi', 'error');
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          console.log('Payment modal closed');
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (resp) {
+      swal('Payment Failed', resp.error.description || 'Payment complete nahi ho saka', 'error');
+    });
+    rzp.open();
+
+  } catch (err) {
+    console.error('payPlan error:', err);
+    swal('Error', 'Something went wrong. Please try again.', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
