@@ -1,161 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Open Yantri - Admin</title>
 <script src="/js/theme-preload.js"></script>
 <link rel="stylesheet" href="/css/main.css">
+<style>
+/* Responsive layout */
+.admin-page-wrap { padding: 4px; }
+.page-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.page-top-bar h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* Card */
+.admin-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.admin-card-header {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-card-body { padding: 14px 16px; }
+
+/* Filter bar */
+.filter-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 160px;
+}
+.filter-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted, #475569);
+}
+.filter-control {
+  padding: 7px 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.83rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  box-sizing: border-box;
+  width: 100%;
+}
+.filter-control:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+/* Yantri Result Section */
+.yantri-summary-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.yantri-summary-title { font-size: 0.88rem; font-weight: 600; color: var(--text, #1e293b); }
+.grand-total-tag { font-size: 1.05rem; font-weight: 700; color: #059669; }
+
+/* Grid container */
+.grid-section-header {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted, #64748b);
+  margin: 10px 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  font-size: 0.78rem;
+}
+@media (max-width: 768px) {
+  .numbers-grid { grid-template-columns: repeat(5, 1fr); gap: 3px; font-size: 0.72rem; }
+}
+@media (max-width: 480px) {
+  .numbers-grid { grid-template-columns: repeat(5, 1fr); gap: 2px; font-size: 0.68rem; }
+}
+
+.num-cell {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 5px;
+  padding: 4px 2px;
+  text-align: center;
+  background: var(--panel, #ffffff);
+  transition: all .12s;
+}
+.num-cell.active-val {
+  background: rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.4);
+}
+.num-label { font-size: 0.65rem; color: var(--muted, #94a3b8); line-height: 1.1; }
+.num-val { font-weight: 700; font-size: 0.82rem; color: #059669; min-height: 16px; line-height: 1.2; }
+.num-cell:not(.active-val) .num-val { color: transparent; }
+</style>
 </head>
 <body>
-<script src="/js/api.js"></script><script src="/js/nav.js"></script>
 
-<div class="content">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            &#128202; Open Yantri
-            <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm" style="float:right;">&#8592; Dashboard</a>
-          </div>
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+
+<div class="admin-page-wrap">
+  <!-- Top bar -->
+  <div class="page-top-bar">
+    <h2>Open Yantri</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div class="admin-card-title">&#128202; Game Yantri Viewer</div>
+    </div>
+    <div class="admin-card-body">
+
+      <!-- Compact Search & Filter Bar -->
+      <div class="filter-row">
+        <!-- Searchable User Selection -->
+        <div class="filter-group" style="flex:1.5; min-width:200px;">
+          <label for="txtUserSearch">Select / Search User *</label>
+          <input type="text" id="txtUserSearch" list="userDatalist" class="filter-control" placeholder="Type Mobile or UID..." onchange="onUserSelected()" oninput="onUserSearchTyping()">
+          <datalist id="userDatalist"></datalist>
+          <input type="hidden" id="selectedUID">
         </div>
-        <div class="card-body">
 
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end">
-            <div class="form-group" style="max-width:200px;">
-              <label class="form-label">User</label>
-              <select class="form-control" id="ddUser" onchange="loadGames()">
-                <option value="">--- Select User ---</option>
-              </select>
-            </div>
-            <div class="form-group" style="max-width:180px;">
-              <label class="form-label">Game</label>
-              <select class="form-control" id="ddGame">
-                <option value="">--- Select Game ---</option>
-              </select>
-            </div>
-            <div class="form-group" style="max-width:160px;">
-              <label class="form-label">Date</label>
-              <input type="date" class="form-control" id="txtDate">
-            </div>
-            <button class="btn btn-success" onclick="loadYantri()">Load Yantri</button>
-          </div>
+        <div class="filter-group" style="flex:1.2; min-width:180px;">
+          <label for="ddGame">Game *</label>
+          <select id="ddGame" class="filter-control">
+            <option value="">-- Select Game --</option>
+          </select>
+        </div>
 
-          <div id="yantriWrap">
-            <div class="emsg">Select user, game and date to load yantri</div>
-          </div>
+        <div class="filter-group" style="flex:1; min-width:140px;">
+          <label for="txtDate">Date *</label>
+          <input type="date" id="txtDate" class="filter-control">
+        </div>
 
+        <div style="margin-bottom:0; align-self:flex-end;">
+          <button class="btn btn-success btn-sm" onclick="loadYantri()" style="height:35px; min-width:100px; font-weight:600;">
+            Load Yantri
+          </button>
         </div>
       </div>
+
+      <!-- Result Container -->
+      <div id="yantriWrap">
+        <div style="padding:28px 16px; text-align:center; color:var(--muted); background:#f8fafc; border:1px dashed var(--border); border-radius:8px;">
+          Select user, game, and date above, then click <strong>Load Yantri</strong> to view numbers.
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
 <script>
-const p = new URLSearchParams(location.search);
+const params = new URLSearchParams(location.search);
+let usersList = [];
 
 async function init() {
   const u = await initAdminPage('open-yantri');
   if (!u) return;
 
-  const ist = new Date(new Date().getTime() + 5.5*3600000);
+  const ist = new Date(new Date().getTime() + 5.5 * 3600000);
   document.getElementById('txtDate').value = ist.toISOString().split('T')[0];
 
   await loadUsers();
 
-  // URL params: ?GameID=X&UID=Y&Date=Z
-  if (p.get('UID')) {
-    document.getElementById('ddUser').value = p.get('UID');
-    await loadGames();
+  // Handle URL params: ?GameID=X&UID=Y&Date=Z
+  if (params.get('UID')) {
+    const targetUID = params.get('UID');
+    document.getElementById('selectedUID').value = targetUID;
+    const match = usersList.find(x => String(x.UID) === String(targetUID));
+    if (match) {
+      document.getElementById('txtUserSearch').value = `${match.Mobile || ''} (UID: ${match.UID})`;
+    } else {
+      document.getElementById('txtUserSearch').value = targetUID;
+    }
+    await loadGames(targetUID);
   }
-  if (p.get('GameID')) {
-    document.getElementById('ddGame').value = p.get('GameID');
+
+  if (params.get('GameID')) {
+    document.getElementById('ddGame').value = params.get('GameID');
   }
-  if (p.get('Date')) {
-    const d = new Date(p.get('Date'));
+
+  if (params.get('Date')) {
+    const d = new Date(params.get('Date'));
     if (!isNaN(d)) document.getElementById('txtDate').value = d.toISOString().split('T')[0];
   }
-  if (p.get('UID') && p.get('GameID')) loadYantri();
+
+  if (params.get('UID') && params.get('GameID')) {
+    loadYantri();
+  }
 }
 
 async function loadUsers() {
-  const r = await API.get('/api/admin/users');
-  const sel = document.getElementById('ddUser');
-  sel.innerHTML = '<option value="">--- Select User ---</option>';
-  (r?.data || []).forEach(u => {
-    sel.innerHTML += `<option value="${u.UID}">${u.Mobile}</option>`;
-  });
+  try {
+    const r = await API.get('/api/admin/users');
+    usersList = r?.data || [];
+    const dl = document.getElementById('userDatalist');
+    dl.innerHTML = '';
+    usersList.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = `${u.Mobile || ''} (UID: ${u.UID})`;
+      opt.setAttribute('data-uid', u.UID);
+      dl.appendChild(opt);
+    });
+  } catch (e) {
+    console.error('Error loading users', e);
+  }
 }
 
-async function loadGames() {
-  const uid = document.getElementById('ddUser').value;
+function onUserSearchTyping() {
+  const val = document.getElementById('txtUserSearch').value.trim();
+  const match = usersList.find(u =>
+    val === `${u.Mobile || ''} (UID: ${u.UID})` ||
+    val === String(u.UID) ||
+    val === String(u.Mobile)
+  );
+  if (match) {
+    document.getElementById('selectedUID').value = match.UID;
+    loadGames(match.UID);
+  }
+}
+
+function onUserSelected() {
+  const val = document.getElementById('txtUserSearch').value.trim();
+  const match = usersList.find(u =>
+    val === `${u.Mobile || ''} (UID: ${u.UID})` ||
+    val === String(u.UID) ||
+    val === String(u.Mobile)
+  );
+  if (match) {
+    document.getElementById('selectedUID').value = match.UID;
+    loadGames(match.UID);
+  } else {
+    // Check if entered pure numeric UID
+    if (val && !isNaN(val)) {
+      document.getElementById('selectedUID').value = val;
+      loadGames(val);
+    }
+  }
+}
+
+async function loadGames(uid) {
   if (!uid) return;
-  const r = await API.get(`/api/admin/all-user-games?uid=${uid}`);
   const sel = document.getElementById('ddGame');
-  sel.innerHTML = '<option value="">--- Select Game ---</option>';
-  (r?.data || []).forEach(g => {
-    sel.innerHTML += `<option value="${g.GID}">${g.GameName}</option>`;
-  });
+  sel.innerHTML = '<option value="">Loading games...</option>';
+
+  try {
+    const r = await API.get(`/api/admin/all-user-games?uid=${uid}`);
+    sel.innerHTML = '<option value="">-- Select Game --</option>';
+    (r?.data || []).forEach(g => {
+      sel.innerHTML += `<option value="${g.GID}">${g.GameName}</option>`;
+    });
+    if (params.get('GameID')) {
+      sel.value = params.get('GameID');
+    }
+  } catch (e) {
+    sel.innerHTML = '<option value="">Error loading games</option>';
+  }
 }
 
 async function loadYantri() {
-  const uid    = document.getElementById('ddUser').value;
+  const uid = document.getElementById('selectedUID').value;
   const gameID = document.getElementById('ddGame').value;
-  const date   = document.getElementById('txtDate').value;
-  if (!uid || !gameID) { alert('Select user and game'); return; }
+  const date = document.getElementById('txtDate').value;
 
-  // Format date as dd/MMM/yyyy
-  const d   = new Date(date + 'T00:00:00');
-  const fmt = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
-               .replace(/ /g, '/');
+  if (!uid) { alert('Please select a valid user first'); return; }
+  if (!gameID) { alert('Please select a game'); return; }
 
-  document.getElementById('yantriWrap').innerHTML = '<div class="emsg"><span class="spin"></span> Loading...</div>';
+  const d = new Date(date + 'T00:00:00');
+  const fmt = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/');
 
-  const r = await API.get(`/api/admin/open-yantri?uid=${uid}&gameID=${gameID}&date=${encodeURIComponent(fmt)}`);
-  const data = r?.data || [];
+  const wrap = document.getElementById('yantriWrap');
+  wrap.innerHTML = '<div style="padding:24px;text-align:center;"><span class="spinner"></span> Loading yantri numbers...</div>';
 
-  if (!data.length) {
-    document.getElementById('yantriWrap').innerHTML = '<div class="emsg">No data found</div>';
-    return;
-  }
+  try {
+    const r = await API.get(`/api/admin/open-yantri?uid=${uid}&gameID=${gameID}&date=${encodeURIComponent(fmt)}`);
+    const data = r?.data || [];
 
-  // Parse messages same as yantri.html FillData logic
-  // SP returns Message field, build number grid
-  const numData = {};
-  data.forEach(row => {
-    if (!row.Message) return;
-    row.Message.split(',').forEach(part => {
-      const kv = part.split('=');
-      if (kv.length === 2) {
-        const num = parseInt(kv[0]);
-        const amt = Math.trunc(parseFloat(kv[1]) || 0);
-        if (!isNaN(num)) numData[num] = (numData[num] || 0) + amt;
-      }
+    if (!data.length) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);background:#f8fafc;border-radius:8px;">No yantri data found for this selection</div>';
+      return;
+    }
+
+    const numData = {};
+    data.forEach(row => {
+      if (!row.Message) return;
+      row.Message.split(',').forEach(part => {
+        const kv = part.split('=');
+        if (kv.length === 2) {
+          const num = parseInt(kv[0]);
+          const amt = Math.trunc(parseFloat(kv[1]) || 0);
+          if (!isNaN(num)) numData[num] = (numData[num] || 0) + amt;
+        }
+      });
     });
-  });
 
-  // Render grid: numbers 1-100, 111-1000, 1111-10000
-  const DARA   = Array.from({length:100}, (_,i) => i+1);
-  const AKHAR1 = [111,222,333,444,555,666,777,888,999,1000];
-  const AKHAR2 = [1111,2222,3333,4444,5555,6666,7777,8888,9999,10000];
+    const DARA   = Array.from({ length: 100 }, (_, i) => i + 1);
+    const AKHAR1 = [111, 222, 333, 444, 555, 666, 777, 888, 999, 1000];
+    const AKHAR2 = [1111, 2222, 3333, 4444, 5555, 6666, 7777, 8888, 9999, 10000];
 
-  let html = '<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;font-size:.75rem">';
-  const cell = n => {
-    const v = numData[n] || 0;
-    return `<div style="border:1px solid var(--border);border-radius:4px;padding:3px;text-align:center;background:${v ? 'rgba(37,211,102,.1)' : 'var(--panel)'}">
-      <div style="color:var(--muted);font-size:.6rem">${n < 10 ? '0'+n : n}</div>
-      <div style="color:${v ? 'var(--green)' : 'var(--muted)'};font-weight:700">${v || ''}</div>
-    </div>`;
-  };
-  DARA.forEach(n => html += cell(n));
-  html += '</div>';
-  html += '<div style="margin-top:8px;display:grid;grid-template-columns:repeat(10,1fr);gap:3px;font-size:.75rem">';
-  [...AKHAR1,...AKHAR2].forEach(n => html += cell(n));
-  html += '</div>';
+    const grandTotal = Object.values(numData).reduce((a, b) => a + b, 0);
 
-  const grandTotal = Object.values(numData).reduce((a,b) => a+b, 0);
-  html += `<div style="margin-top:10px;font-weight:700;color:var(--green)">Grand Total: ${grandTotal}</div>`;
-  document.getElementById('yantriWrap').innerHTML = html;
+    const cell = n => {
+      const v = numData[n] || 0;
+      const formattedNum = n < 10 ? '0' + n : n;
+      return `<div class="num-cell ${v ? 'active-val' : ''}">
+        <div class="num-label">${formattedNum}</div>
+        <div class="num-val">${v ? v.toLocaleString('en-IN') : '&nbsp;'}</div>
+      </div>`;
+    };
+
+    let html = `
+      <div class="yantri-summary-bar">
+        <div class="yantri-summary-title">&#128202; Yantri Details (${fmt})</div>
+        <div class="grand-total-tag">Grand Total: ₹${grandTotal.toLocaleString('en-IN')}</div>
+      </div>
+    `;
+
+    html += '<div class="grid-section-header">Dara (1 to 100)</div>';
+    html += '<div class="numbers-grid">';
+    DARA.forEach(n => html += cell(n));
+    html += '</div>';
+
+    html += '<div class="grid-section-header" style="margin-top:14px;">Akhar (Triple & Four Digits)</div>';
+    html += '<div class="numbers-grid">';
+    [...AKHAR1, ...AKHAR2].forEach(n => html += cell(n));
+    html += '</div>';
+
+    wrap.innerHTML = html;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty-state">Error loading yantri data</div>';
+  }
 }
 
 init();

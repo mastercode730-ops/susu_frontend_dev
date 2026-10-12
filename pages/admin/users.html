@@ -3,77 +3,290 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Users - Admin - Susu9</title>
+<title>User Management - Susu9 Admin</title>
 <script src="/js/theme-preload.js"></script>
 <link rel="stylesheet" href="/css/main.css">
+<style>
+/* Layout Polish */
+.admin-page-wrap { padding: 4px; }
+.page-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.page-top-bar h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* Card design */
+.admin-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.admin-card-header {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-card-body { padding: 14px 16px; }
+
+/* Responsive Form Row */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-field label { font-size: 0.78rem; font-weight: 600; color: var(--muted, #475569); }
+.form-field input, .form-field select {
+  padding: 7px 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.83rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  box-sizing: border-box;
+}
+.form-field input:focus, .form-field select:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+.form-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Toolbar & Search */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.search-box { position: relative; flex: 1; min-width: 220px; max-width: 420px; }
+.search-box input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #cbd5e1);
+  font-size: 0.82rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  box-sizing: border-box;
+}
+.search-box input:focus { outline: none; border-color: #2563eb; background: #fff; }
+.search-box-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--muted, #94a3b8); pointer-events: none; }
+.record-summary { font-size: 0.78rem; color: var(--muted, #64748b); font-weight: 500; }
+
+/* Scrollable Table */
+.table-scroll-container {
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+}
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: center;
+}
+.users-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-bottom: 2px solid #cbd5e1;
+  white-space: nowrap;
+}
+.users-table tbody tr {
+  border-bottom: 1px solid var(--border, #f1f5f9);
+  transition: background .1s;
+}
+.users-table tbody tr:hover { background: rgba(37,99,235,0.035); }
+.users-table td { padding: 6px 8px; vertical-align: middle; white-space: nowrap; }
+
+/* Badges */
+.badge-active   { background: rgba(16,185,129,.12); color: #047857; padding: 2px 7px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
+.badge-inactive { background: rgba(239,68,68,.12);  color: #b91c1c; padding: 2px 7px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
+
+/* Pagination bar */
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #f1f5f9);
+}
+.page-btn {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #cbd5e1);
+  color: var(--text, #334155);
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .12s;
+}
+.page-btn:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; }
+.page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.page-curr { font-size: 0.78rem; font-weight: 600; color: #2563eb; padding: 0 4px; }
+
+/* Block / Unblock card */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: center;
+}
+.sec-card {
+  background: rgba(0,0,0,0.015);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px;
+}
+.sec-title { font-size: 0.82rem; font-weight: 700; color: var(--text, #334155); margin-bottom: 8px; }
+</style>
 </head>
 <body>
 
 <script src="/js/api.js"></script>
 <script src="/js/nav.js"></script>
 
-<div class="content">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Users</div>
+<div class="admin-page-wrap">
+  <!-- Top bar -->
+  <div class="page-top-bar">
+    <h2>User Management</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+  </div>
+
+  <!-- Add / Edit User Form Card -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div class="admin-card-title">
+        <span>&#128100;</span> <span id="formHeaderTitle">Add / Edit User</span>
+      </div>
+      <div id="editingBadge" style="display:none;font-size:0.75rem;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-weight:600;">Editing Mode</div>
+    </div>
+    <div class="admin-card-body">
+      <input type="hidden" id="editUID">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="txtMobile">Mobile Number *</label>
+          <input type="text" id="txtMobile" placeholder="e.g. 9876543210" maxlength="15">
         </div>
-        <div class="card-body">
+        <div class="form-field">
+          <label for="txtPassword">Password</label>
+          <input type="text" id="txtPassword" placeholder="User password">
+        </div>
+        <div class="form-field">
+          <label for="txtValidity">Validity Date *</label>
+          <input type="date" id="txtValidity">
+        </div>
+        <div class="form-field">
+          <label for="ddlActive">Status</label>
+          <select id="ddlActive">
+            <option value="True">Active</option>
+            <option value="False">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-success btn-sm" onclick="saveUser()" id="btnSave" style="min-width:90px;">Save User</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetForm()">Reset Form</button>
+      </div>
+    </div>
+  </div>
 
-          <!-- Add / Edit -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Mobile (Username)</label>
-              <input type="text" id="txtMobile" class="form-control" placeholder="Mobile number">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input type="text" id="txtPassword" class="form-control" placeholder="Password">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Validity Date</label>
-              <input type="date" id="txtValidity" class="form-control">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Status</label>
-              <select id="ddlActive" class="form-control">
-                <option value="True">Active</option>
-                <option value="False">Inactive</option>
-              </select>
-            </div>
-          </div>
-          <div style="margin-bottom:18px;">
-            <button class="btn btn-success" onclick="saveUser()" id="btnSave">Save</button>
-            <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
-          </div>
-          <input type="hidden" id="editUID">
+  <!-- Users Table Card -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div class="admin-card-title">
+        <span>&#128101;</span> Registered Users List
+      </div>
+      <div class="record-summary" id="badgeTotalUsers">0 Users</div>
+    </div>
+    <div class="admin-card-body">
+      <!-- Toolbar -->
+      <div class="table-toolbar">
+        <div class="search-box">
+          <span class="search-box-icon">&#128269;</span>
+          <input type="text" id="srchUser" placeholder="Type to search Mobile, UID, or Password..." oninput="onSearchInput()">
+        </div>
+        <div class="record-summary" id="recordRange">Showing 0 of 0</div>
+      </div>
 
-          <!-- Grid -->
-          <input type="text" id="srchUser" class="form-control" placeholder="Filter by Mobile/UID..." oninput="filterUsers()" style="margin-bottom:12px;">
-          <div class="table-responsive">
-            <div id="usersTable" class="loading"><span class="spinner"></span>Loading...</div>
-          </div>
+      <!-- 10-row scroll container -->
+      <div class="table-scroll-container">
+        <div id="usersTable" class="loading" style="padding:20px;text-align:center;"><span class="spinner"></span> Loading users...</div>
+      </div>
 
-          <!-- Block / Unblock -->
-          <div class="row mt-4" style="margin-top:18px;">
-            <div class="col-md-6 text-center">
-              <button class="btn btn-danger btn-lg m-2" onclick="blockAll()" title="Block all users">&#128274; Block All Users</button>
-              <button class="btn btn-success btn-lg m-2" onclick="unblockAll()" title="Unblock all users">&#9989; Unblock All Users</button>
-            </div>
-            <div class="col-md-6 text-center">
-              <div class="input-group mb-3" style="display:flex;gap:8px;">
-                <input type="text" id="blockMobile" class="form-control" placeholder="Enter Mobile Number">
-                <button class="btn btn-warning" onclick="blockOne()" title="Block single user">&#128274; Block</button>
-                <button class="btn btn-primary" onclick="unblockOne()" title="Unblock single user">&#9989; Unblock</button>
-              </div>
-              <div class="col-md-6 text-center mb-2">
-                <label class="form-label">Validity Date for Unblock</label>
-                <input type="date" id="bulkValidity" class="form-control" title="Validity date for unblock">
-              </div>
-            </div>
-          </div>
+      <!-- Pagination bar -->
+      <div class="pagination-bar">
+        <div class="record-summary" id="pageSummary">Page 1 of 1</div>
+        <div style="display:flex;gap:5px;align-items:center;">
+          <button class="page-btn" id="btnFirst" onclick="goToPage(1)">&laquo; First</button>
+          <button class="page-btn" id="btnPrev" onclick="changePage(-1)">&lsaquo; Prev</button>
+          <span class="page-curr" id="currPageNum">1</span>
+          <button class="page-btn" id="btnNext" onclick="changePage(1)">Next &rsaquo;</button>
+          <button class="page-btn" id="btnLast" onclick="goToLastPage()">Last &raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Bulk Operations Card -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div class="admin-card-title">&#128274; Bulk Access Control & Security</div>
+    </div>
+    <div class="admin-card-body">
+      <div class="security-grid">
+        <!-- Global Block / Unblock -->
+        <div class="sec-card">
+          <div class="sec-title">Global User Actions</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-danger btn-sm" onclick="blockAll()" title="Block all users in system">&#128274; Block All Users</button>
+            <button class="btn btn-success btn-sm" onclick="unblockAll()" title="Unblock all users">&#9989; Unblock All Users</button>
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:6px;">
+            Note: "Unblock All" sets validity to the Bulk Date below.
+          </div>
+        </div>
+
+        <!-- Single User Block / Unblock -->
+        <div class="sec-card">
+          <div class="sec-title">Single User Access Control</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+            <input type="text" id="blockMobile" placeholder="Enter Mobile Number" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:0.8rem;flex:1;min-width:140px;">
+            <button class="btn btn-warning btn-sm" onclick="blockOne()">&#128274; Block</button>
+            <button class="btn btn-primary btn-sm" onclick="unblockOne()">&#9989; Unblock</button>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <label style="font-size:0.75rem;font-weight:600;color:var(--muted);margin:0;">Validity Date for Unblock:</label>
+            <input type="date" id="bulkValidity" style="padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:0.78rem;">
+          </div>
         </div>
       </div>
     </div>
@@ -82,63 +295,154 @@
 
 <script>
 let allUsers = [];
+let filteredUsers = [];
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let searchTimer = null;
 
 async function init() {
   const u = await initAdminPage('users');
   if (!u) return;
 
-  // Default validity - 1 year from now
+  // Default validity - 1 year from today
   const nextYear = new Date();
   nextYear.setFullYear(nextYear.getFullYear() + 1);
-  document.getElementById('txtValidity').value = nextYear.toISOString().split('T')[0];
+  const nextYearStr = nextYear.toISOString().split('T')[0];
+  document.getElementById('txtValidity').value = nextYearStr;
+  document.getElementById('bulkValidity').value = nextYearStr;
 
   await loadUsers();
 }
 
 async function loadUsers() {
-  const res = await API.get('/api/admin/users');
-  if (!res || !res.success) return;
-  allUsers = res.data;
-  filterUsers();
+  const tableEl = document.getElementById('usersTable');
+  tableEl.innerHTML = '<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading users...</div>';
+
+  try {
+    const res = await API.get('/api/admin/users');
+    if (!res || !res.success) {
+      tableEl.innerHTML = '<div class="empty-state">Failed to load users</div>';
+      return;
+    }
+    allUsers = res.data || [];
+    filteredUsers = allUsers;
+    document.getElementById('badgeTotalUsers').textContent = allUsers.length.toLocaleString('en-IN') + ' Users';
+    currentPage = 1;
+    renderTable();
+  } catch (e) {
+    tableEl.innerHTML = '<div class="empty-state">Error loading users</div>';
+  }
 }
 
-function filterUsers() {
-  const q = document.getElementById('srchUser').value.toLowerCase();
-  const filtered = allUsers.filter(u =>
-    (u.UID || '').toLowerCase().includes(q) ||
-    (u.Mobile || '').toLowerCase().includes(q)
-  );
-  renderTable(filtered);
+function onSearchInput() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    applyFilter();
+  }, 120);
 }
 
-function renderTable(users) {
+function applyFilter() {
+  const q = (document.getElementById('srchUser').value || '').trim().toLowerCase();
+  if (!q) {
+    filteredUsers = allUsers;
+  } else {
+    filteredUsers = allUsers.filter(u =>
+      (u.UID ? String(u.UID).toLowerCase() : '').includes(q) ||
+      (u.Mobile ? String(u.Mobile).toLowerCase() : '').includes(q) ||
+      (u.Password ? String(u.Password).toLowerCase() : '').includes(q)
+    );
+  }
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
   const el = document.getElementById('usersTable');
-  if (!users.length) { el.innerHTML = '<div class="empty-state">No users</div>'; return; }
+  const totalRecords = filteredUsers.length;
+  const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
 
-  el.innerHTML = `
-    <table class="table-bordered-bd-primary table-hover" cellpadding="4" style="text-align:center;width:100%;">
-      <thead>
-        <tr style="background-color:LightGray;"><th>#</th><th>UID</th><th>Mobile</th><th>Password</th><th>Validity</th><th>Status</th><th>Registered</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        ${users.map((u, i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td style="font-weight:600;">${u.UID}</td>
-            <td>${u.Mobile}</td>
-            <td style="color:var(--muted); font-size:0.8rem;">${u.Password || '-'}</td>
-            <td>${u.ValidityDate ? new Date(u.ValidityDate).toLocaleDateString('en-IN') : '-'}</td>
-            <td><span class="badge ${u.IsActive === 'True' || u.IsActive === true ? 'badge-accepted' : 'badge-rejected'}">${u.IsActive === 'True' || u.IsActive === true ? 'Active' : 'Inactive'}</span></td>
-            <td style="font-size:0.75rem; color:var(--muted);">${u.RegisteredOn ? new Date(u.RegisteredOn).toLocaleDateString('en-IN') : '-'}</td>
-            <td>
-              <img src="/vendor/images/edit-icon-orange-pencil-0.png" width="25" height="25" style="cursor:pointer;" title="Edit"
-                onclick="editUser('${u.UID}','${u.Mobile}','${u.Password}','${u.ValidityDate}','${u.IsActive}')">
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const startIdx = (currentPage - 1) * PAGE_SIZE;
+  const endIdx = Math.min(startIdx + PAGE_SIZE, totalRecords);
+  const pageItems = filteredUsers.slice(startIdx, endIdx);
+
+  // Update Toolbar & Pagination Info
+  document.getElementById('recordRange').textContent = totalRecords === 0
+    ? 'Showing 0 of 0'
+    : `Showing ${startIdx + 1}–${endIdx} of ${totalRecords.toLocaleString('en-IN')}`;
+
+  document.getElementById('pageSummary').textContent = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('currPageNum').textContent = `${currentPage} / ${totalPages}`;
+
+  document.getElementById('btnFirst').disabled = (currentPage <= 1);
+  document.getElementById('btnPrev').disabled  = (currentPage <= 1);
+  document.getElementById('btnNext').disabled  = (currentPage >= totalPages);
+  document.getElementById('btnLast').disabled  = (currentPage >= totalPages);
+
+  if (!totalRecords) {
+    el.innerHTML = '<div class="empty-state" style="padding:20px;text-align:center;color:var(--muted)">No users match your search</div>';
+    return;
+  }
+
+  // Render ONLY 10 rows for instant rendering and high performance
+  el.innerHTML = `<table class="users-table" cellpadding="6">
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>UID</th>
+        <th>Mobile</th>
+        <th>Password</th>
+        <th>Validity</th>
+        <th>Status</th>
+        <th>Registered</th>
+        <th style="width:70px;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${pageItems.map((u, i) => {
+        const rowNum = startIdx + i + 1;
+        const isActive = (u.IsActive === 'True' || u.IsActive === true);
+        const validityStr = u.ValidityDate ? new Date(u.ValidityDate).toLocaleDateString('en-IN') : '-';
+        const regStr = u.RegisteredOn ? new Date(u.RegisteredOn).toLocaleDateString('en-IN') : '-';
+        return `<tr>
+          <td style="color:var(--muted);font-size:0.75rem;">${rowNum}</td>
+          <td><strong style="color:#2563eb;">${u.UID}</strong></td>
+          <td>${u.Mobile || '-'}</td>
+          <td style="color:var(--muted);font-size:0.78rem;">${u.Password || '-'}</td>
+          <td style="font-size:0.78rem;">${validityStr}</td>
+          <td><span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span></td>
+          <td style="font-size:0.75rem;color:var(--muted);">${regStr}</td>
+          <td>
+            <button class="btn btn-secondary btn-xs" title="Edit User" onclick="editUser('${u.UID}','${u.Mobile}','${u.Password || ''}','${u.ValidityDate || ''}','${u.IsActive}')" style="padding:2px 6px;cursor:pointer;">
+              ✏️ Edit
+            </button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function changePage(delta) {
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const newPage = currentPage + delta;
+  if (newPage >= 1 && newPage <= totalPages) {
+    currentPage = newPage;
+    renderTable();
+  }
+}
+
+function goToPage(p) {
+  currentPage = p;
+  renderTable();
+}
+
+function goToLastPage() {
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  currentPage = totalPages;
+  renderTable();
 }
 
 async function saveUser() {
@@ -149,7 +453,7 @@ async function saveUser() {
   const uid = document.getElementById('editUID').value;
 
   if (!mobile || !validity) {
-    showToast('Mobile and validity required', true);
+    showToast('Mobile number and validity date are required', true);
     return;
   }
 
@@ -157,15 +461,15 @@ async function saveUser() {
   if (uid) {
     res = await API.put(`/api/admin/users/${uid}`, { isActive, validityDate: validity, password });
   } else {
-    res = await API.post('/api/admin/users', { mobile, validityDate: validity });
+    res = await API.post('/api/admin/users', { mobile, validityDate: validity, password });
   }
 
   if (res && res.success) {
-    showToast(uid ? 'User updated!' : 'User created!');
+    showToast(uid ? 'User updated successfully!' : 'User created successfully!');
     resetForm();
     await loadUsers();
   } else {
-    showToast(res?.message || 'Error', true);
+    showToast(res?.message || 'Failed to save user', true);
   }
 }
 
@@ -174,8 +478,10 @@ function editUser(uid, mobile, password, validity, isActive) {
   document.getElementById('txtMobile').value = mobile;
   document.getElementById('txtPassword').value = password || '';
   document.getElementById('txtValidity').value = validity ? new Date(validity).toISOString().split('T')[0] : '';
-  document.getElementById('ddlActive').value = isActive === 'True' || isActive === true ? 'True' : 'False';
+  document.getElementById('ddlActive').value = (isActive === 'True' || isActive === true) ? 'True' : 'False';
   document.getElementById('btnSave').textContent = 'Update User';
+  document.getElementById('formHeaderTitle').textContent = 'Edit User #' + uid;
+  document.getElementById('editingBadge').style.display = 'inline-block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -183,54 +489,61 @@ function resetForm() {
   document.getElementById('editUID').value = '';
   document.getElementById('txtMobile').value = '';
   document.getElementById('txtPassword').value = '';
-  document.getElementById('btnSave').textContent = 'Save';
+  document.getElementById('ddlActive').value = 'True';
+  document.getElementById('btnSave').textContent = 'Save User';
+  document.getElementById('formHeaderTitle').textContent = 'Add / Edit User';
+  document.getElementById('editingBadge').style.display = 'none';
+
   const nextYear = new Date();
   nextYear.setFullYear(nextYear.getFullYear() + 1);
   document.getElementById('txtValidity').value = nextYear.toISOString().split('T')[0];
 }
 
 async function blockAll() {
-  if (!confirm('Block ALL users? They will not be able to login.')) return;
+  if (!confirm('Are you sure you want to block ALL users? No user will be able to login.')) return;
   const r = await API.post('/api/admin/block-all', {});
-  if (r?.success) { showToast('All users blocked'); loadUsers(); }
-  else showToast(r?.message || 'Error', true);
+  if (r?.success) { showToast('All users blocked successfully'); loadUsers(); }
+  else showToast(r?.message || 'Error blocking all users', true);
 }
 
 async function unblockAll() {
   const validity = document.getElementById('bulkValidity').value;
-  if (!validity) { showToast('Select validity date first', true); return; }
-  if (!confirm('Unblock ALL users?')) return;
+  if (!validity) { showToast('Please select validity date for unblocking', true); return; }
+  if (!confirm('Unblock ALL users with validity: ' + validity + '?')) return;
   const r = await API.post('/api/admin/unblock-all', { validityDate: validity });
-  if (r?.success) { showToast('All users unblocked'); loadUsers(); }
-  else showToast(r?.message || 'Error', true);
+  if (r?.success) { showToast('All users unblocked successfully'); loadUsers(); }
+  else showToast(r?.message || 'Error unblocking users', true);
 }
 
 async function blockOne() {
   const mobile = document.getElementById('blockMobile').value.trim();
-  if (!mobile) { showToast('Enter mobile to block', true); return; }
-  if (!confirm('Block user: ' + mobile + '?')) return;
+  if (!mobile) { showToast('Please enter mobile number to block', true); return; }
+  if (!confirm('Block user with mobile ' + mobile + '?')) return;
   const r = await API.post('/api/admin/block-user', { mobile });
-  if (r?.success) { showToast('User blocked'); loadUsers(); }
-  else showToast(r?.message || 'Error', true);
+  if (r?.success) { showToast('User blocked successfully'); loadUsers(); }
+  else showToast(r?.message || 'Error blocking user', true);
 }
 
 async function unblockOne() {
-  const mobile   = document.getElementById('blockMobile').value.trim();
+  const mobile = document.getElementById('blockMobile').value.trim();
   const validity = document.getElementById('bulkValidity').value;
-  if (!mobile)   { showToast('Enter mobile', true); return; }
-  if (!validity) { showToast('Select validity date', true); return; }
+  if (!mobile)   { showToast('Please enter mobile number', true); return; }
+  if (!validity) { showToast('Please select validity date', true); return; }
   const r = await API.post('/api/admin/unblock-user', { mobile, validityDate: validity });
-  if (r?.success) { showToast('User unblocked'); loadUsers(); }
-  else showToast(r?.message || 'Error', true);
+  if (r?.success) { showToast('User unblocked successfully'); loadUsers(); }
+  else showToast(r?.message || 'Error unblocking user', true);
 }
 
-// ── SweetAlert-based feedback (matches other converted admin pages) ──
-function showToast(msg, err=false) {
-  swal(err ? 'Wrong Inputs!' : 'Sucess!', msg, {
-    icon: err ? 'error' : 'success',
-    timer: 900,
-    buttons: false
-  });
+function showToast(msg, err = false) {
+  if (typeof swal === 'function') {
+    swal(err ? 'Notice' : 'Success', msg, {
+      icon: err ? 'error' : 'success',
+      timer: 1500,
+      buttons: false
+    });
+  } else {
+    alert(msg);
+  }
 }
 
 init();

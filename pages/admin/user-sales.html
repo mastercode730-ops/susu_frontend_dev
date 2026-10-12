@@ -1,64 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>User Sales - Admin</title>
 <script src="/js/theme-preload.js"></script>
 <link rel="stylesheet" href="/css/main.css">
 <style>
-.sel-row{background:rgba(37,211,102,.08);border-left:3px solid var(--green);}
-.tbl-wrap table{width:100%;border-collapse:collapse;font-size:.83rem;}
-.tbl-wrap thead th{background:var(--panel2);color:var(--muted);font-size:.67rem;text-transform:uppercase;letter-spacing:1px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
-.tbl-wrap tbody tr{border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s;}
-.tbl-wrap tbody tr:hover{background:var(--panel2);}
-.tbl-wrap td{padding:8px 10px;color:var(--text2);}
-.tbl-wrap tfoot td{background:var(--panel2);font-weight:700;color:var(--text);padding:9px 10px;}
-.pos{color:var(--green);}
-.tbl-wrap{overflow-x:auto;}
+/* Responsive layout */
+.admin-page-wrap { padding: 4px; }
+.page-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.page-top-bar h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text, #1e293b); }
+
+/* Card */
+.admin-card {
+  background: var(--panel, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.admin-card-header {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.015);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-card-body { padding: 14px 16px; }
+
+/* Filter bar */
+.sales-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.filter-field { display: flex; flex-direction: column; gap: 4px; }
+.filter-field label { font-size: 0.78rem; font-weight: 600; color: var(--muted, #475569); }
+.filter-field input {
+  padding: 6px 10px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+}
+
+/* 2-column layout */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+.table-panel {
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.table-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.panel-title { font-size: 0.86rem; font-weight: 700; color: var(--text, #334155); }
+
+/* Search inputs */
+.search-input-wrap { position: relative; margin-bottom: 8px; }
+.search-input-wrap input {
+  width: 100%;
+  padding: 6px 10px 6px 28px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: var(--bg, #f8fafc);
+  box-sizing: border-box;
+}
+.search-input-wrap input:focus { outline: none; border-color: #2563eb; background: #fff; }
+.search-input-wrap .si-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--muted, #94a3b8); pointer-events: none; }
+
+/* Scrollable 10-row container */
+.tbl-scroll-box {
+  max-height: 380px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  flex: 1;
+}
+.sales-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: center;
+}
+.sales-tbl thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  padding: 8px 6px;
+  border-bottom: 2px solid #cbd5e1;
+  white-space: nowrap;
+}
+.sales-tbl tbody tr {
+  border-bottom: 1px solid var(--border, #f1f5f9);
+  cursor: pointer;
+  transition: background .12s;
+}
+.sales-tbl tbody tr:hover { background: rgba(37,99,235,0.04); }
+.sales-tbl tbody tr.selected-row {
+  background: rgba(16,185,129,0.12) !important;
+  font-weight: 600;
+}
+.sales-tbl td { padding: 7px 8px; vertical-align: middle; white-space: nowrap; }
+.sales-tbl tfoot td {
+  background: #f8fafc;
+  font-weight: 700;
+  padding: 8px;
+  border-top: 2px solid #cbd5e1;
+}
+
+.pos { color: #059669; font-weight: 600; }
+
+/* Pagination bar */
+.pag-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  font-size: 0.76rem;
+  color: var(--muted, #64748b);
+}
+.pag-btn {
+  background: #fff;
+  border: 1px solid var(--border, #cbd5e1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+.pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
-<script src="/js/api.js"></script><script src="/js/nav.js"></script>
 
-<div class="content">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            &#128176; User Sales
-            <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm" style="float:right;">&#8592; Dashboard</a>
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+
+<div class="admin-page-wrap">
+  <!-- Top bar -->
+  <div class="page-top-bar">
+    <h2>User Sales</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
+  </div>
+
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <div class="admin-card-title">&#128176; Daily User Sales Overview</div>
+      <div id="selectedDateBadge" style="font-size:0.8rem;color:var(--muted);font-weight:600;"></div>
+    </div>
+    <div class="admin-card-body">
+      <!-- Date Filter Bar -->
+      <div class="sales-filter-bar">
+        <div class="filter-field">
+          <label for="txtDate">Select Date</label>
+          <input type="date" id="txtDate" onchange="loadSales()">
+        </div>
+        <button class="btn btn-success btn-sm" onclick="loadSales()" style="min-width:80px;height:32px;">Search</button>
+      </div>
+
+      <!-- Responsive Two Column Grid -->
+      <div class="tables-grid">
+        <!-- Left Column: All Users Summary -->
+        <div class="table-panel">
+          <div class="table-panel-header">
+            <span class="panel-title">&#128101; All Users Sale</span>
+            <span id="usersTotalPill" style="font-size:0.75rem;color:var(--muted);font-weight:600;">0 Users</span>
+          </div>
+
+          <!-- Typing Search for Left Table -->
+          <div class="search-input-wrap">
+            <span class="si-icon">&#128269;</span>
+            <input type="text" id="srchSalesUser" placeholder="Type to filter users..." oninput="onFilterSalesUsers()">
+          </div>
+
+          <!-- Scrollable Table -->
+          <div class="tbl-scroll-box" id="summaryWrap">
+            <div style="padding:20px;text-align:center;color:var(--muted);">Loading...</div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pag-bar">
+            <span id="userSummaryPagInfo">Showing 0 of 0</span>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <button class="pag-btn" id="btnUserPrev" onclick="changeUserPage(-1)">&lsaquo; Prev</button>
+              <span id="userPageNum" style="font-weight:600;color:#2563eb;">1/1</span>
+              <button class="pag-btn" id="btnUserNext" onclick="changeUserPage(1)">Next &rsaquo;</button>
+            </div>
           </div>
         </div>
-        <div class="card-body">
 
-          <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap">
-            <div class="form-group" style="max-width:160px;">
-              <label class="form-label">Date</label>
-              <input type="date" class="form-control" id="txtDate" onchange="loadSales()">
-            </div>
-            <button class="btn btn-success" onclick="loadSales()">Search</button>
+        <!-- Right Column: Game-wise Breakdown -->
+        <div class="table-panel">
+          <div class="table-panel-header">
+            <span class="panel-title">
+              &#127918; Game-wise: <span id="lblUser" style="color:#059669;">Select a user &#8594;</span>
+            </span>
+            <span id="gamesTotalPill" style="font-size:0.75rem;color:var(--muted);font-weight:600;">0 Entries</span>
           </div>
 
-          <div class="row">
-            <div class="col-md-6">
-              <!-- All Users Summary -->
-              <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:600">All Users</div>
-              <div class="tbl-wrap" id="summaryWrap">
-                <div class="emsg">Loading...</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <!-- Game-wise for selected user -->
-              <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:600">
-                Game-wise: <span id="lblUser" style="color:var(--green)">Select a user &#8594;</span>
-              </div>
-              <div class="tbl-wrap" id="gamewiseWrap">
-                <div class="emsg">Click a user row to view game-wise details</div>
-              </div>
-            </div>
+          <!-- Typing Search for Right Table -->
+          <div class="search-input-wrap">
+            <span class="si-icon">&#128269;</span>
+            <input type="text" id="srchGameDetails" placeholder="Type to filter game or customer..." oninput="onFilterGameDetails()">
           </div>
 
+          <!-- Scrollable Table -->
+          <div class="tbl-scroll-box" id="gamewiseWrap">
+            <div style="padding:20px;text-align:center;color:var(--muted);">Click any user on the left to view game-wise details</div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pag-bar">
+            <span id="gamePagInfo">Showing 0 of 0</span>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <button class="pag-btn" id="btnGamePrev" onclick="changeGamePage(-1)">&lsaquo; Prev</button>
+              <span id="gamePageNum" style="font-weight:600;color:#2563eb;">1/1</span>
+              <button class="pag-btn" id="btnGameNext" onclick="changeGamePage(1)">Next &rsaquo;</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -66,76 +261,233 @@
 </div>
 
 <script>
+// Left Table Data State
+let rawUsersSales = [];
+let filteredUsersSales = [];
+let userPage = 1;
+const USER_PAGE_SIZE = 10;
+let selectedUID = null;
+
+// Right Table Data State
+let rawGameDetails = [];
+let filteredGameDetails = [];
+let gamePage = 1;
+const GAME_PAGE_SIZE = 10;
+
 async function init() {
   const u = await initAdminPage('user-sales');
   if (!u) return;
-  const ist = new Date(new Date().getTime() + 5.5*3600000);
+
+  const ist = new Date(new Date().getTime() + 5.5 * 3600000);
   document.getElementById('txtDate').value = ist.toISOString().split('T')[0];
   loadSales();
 }
 
 function fmtDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).replace(/ /g, '/');
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/');
 }
 
 async function loadSales() {
   const date = document.getElementById('txtDate').value;
-  document.getElementById('summaryWrap').innerHTML = '<div class="emsg"><span class="spin"></span></div>';
-  document.getElementById('gamewiseWrap').innerHTML = '<div class="emsg">Click a user row</div>';
+  document.getElementById('selectedDateBadge').textContent = 'Date: ' + fmtDate(date);
+  document.getElementById('summaryWrap').innerHTML = '<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading...</div>';
+  document.getElementById('gamewiseWrap').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">Click any user on the left to view details</div>';
   document.getElementById('lblUser').textContent = 'Select a user →';
+  document.getElementById('gamesTotalPill').textContent = '0 Entries';
+  selectedUID = null;
+  rawGameDetails = [];
+  filteredGameDetails = [];
+  updateGamePagination();
 
-  const r = await API.get(`/api/admin/user-sales-list?date=${encodeURIComponent(fmtDate(date))}`);
-  const data = r?.data || [];
-  if (!data.length) {
-    document.getElementById('summaryWrap').innerHTML = '<div class="emsg">No sales found</div>';
-    return;
+  try {
+    const r = await API.get(`/api/admin/user-sales-list?date=${encodeURIComponent(fmtDate(date))}`);
+    rawUsersSales = r?.data || [];
+    filteredUsersSales = rawUsersSales;
+    userPage = 1;
+    document.getElementById('usersTotalPill').textContent = rawUsersSales.length + ' Users';
+    renderUsersTable();
+  } catch (e) {
+    document.getElementById('summaryWrap').innerHTML = '<div class="empty-state">Error loading sales</div>';
   }
-
-  let total = 0;
-  const rows = data.map(d => {
-    total += parseFloat(d.TotalAmount || 0);
-    return `<tr onclick="loadGamewise('${d.UID}','${d.Mobile||d.UID}','${fmtDate(date)}')" title="Click for game-wise">
-      <td>${d.Mobile || d.UID}</td>
-      <td class="pos">${d.TotalAmount || 0}</td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('summaryWrap').innerHTML = `
-    <table class="table-bordered-bd-primary table-hover" cellpadding="4" style="text-align:center;width:100%;">
-      <thead><tr style="background-color:LightGray;"><th>User</th><th>Total Sale</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot style="background-color:LightGray;font-weight:bold;"><tr><td>Total (${data.length})</td><td class="pos">${total.toFixed(0)}</td></tr></tfoot>
-    </table>`;
 }
 
-async function loadGamewise(uid, mobile, date) {
-  document.getElementById('lblUser').textContent = mobile;
-  document.getElementById('gamewiseWrap').innerHTML = '<div class="emsg"><span class="spin"></span></div>';
+function onFilterSalesUsers() {
+  const q = (document.getElementById('srchSalesUser').value || '').trim().toLowerCase();
+  if (!q) {
+    filteredUsersSales = rawUsersSales;
+  } else {
+    filteredUsersSales = rawUsersSales.filter(d =>
+      (d.Mobile ? String(d.Mobile).toLowerCase() : '').includes(q) ||
+      (d.UID ? String(d.UID).toLowerCase() : '').includes(q)
+    );
+  }
+  userPage = 1;
+  renderUsersTable();
+}
 
-  const r = await API.get(`/api/admin/user-sales-gamewise?uid=${uid}&date=${encodeURIComponent(date)}`);
-  const data = r?.data || [];
-  if (!data.length) {
-    document.getElementById('gamewiseWrap').innerHTML = '<div class="emsg">No game data</div>';
+function renderUsersTable() {
+  const wrap = document.getElementById('summaryWrap');
+  const total = filteredUsersSales.length;
+  const totalPages = Math.max(1, Math.ceil(total / USER_PAGE_SIZE));
+
+  if (userPage > totalPages) userPage = totalPages;
+  if (userPage < 1) userPage = 1;
+
+  const start = (userPage - 1) * USER_PAGE_SIZE;
+  const end = Math.min(start + USER_PAGE_SIZE, total);
+  const items = filteredUsersSales.slice(start, end);
+
+  // Pagination info
+  document.getElementById('userSummaryPagInfo').textContent = total === 0 ? 'Showing 0 of 0' : `${start + 1}–${end} of ${total}`;
+  document.getElementById('userPageNum').textContent = `${userPage}/${totalPages}`;
+  document.getElementById('btnUserPrev').disabled = (userPage <= 1);
+  document.getElementById('btnUserNext').disabled = (userPage >= totalPages);
+
+  if (!total) {
+    wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No users found</div>';
     return;
   }
 
-  let total = 0;
-  const rows = data.map(d => {
-    total += parseFloat(d.TotalAmount || 0);
-    return `<tr>
-      <td>${d.GameName || ''}</td>
-      <td>${d.CustomerName || ''}</td>
-      <td class="pos">${d.TotalAmount || 0}</td>
+  // Calculate grand total of all filtered items
+  const grandTotal = filteredUsersSales.reduce((acc, d) => acc + parseFloat(d.TotalAmount || 0), 0);
+
+  const rows = items.map((d, i) => {
+    const isSelected = selectedUID === d.UID;
+    const date = document.getElementById('txtDate').value;
+    return `<tr class="${isSelected ? 'selected-row' : ''}" onclick="selectUser('${d.UID}', '${d.Mobile || d.UID}', '${fmtDate(date)}')">
+      <td style="color:var(--muted);width:35px;">${start + i + 1}</td>
+      <td style="text-align:left;font-weight:600;">${d.Mobile || d.UID}</td>
+      <td class="pos" style="text-align:right;">₹${parseFloat(d.TotalAmount || 0).toLocaleString('en-IN')}</td>
     </tr>`;
   }).join('');
 
-  document.getElementById('gamewiseWrap').innerHTML = `
-    <table class="table-bordered-bd-primary table-hover" cellpadding="4" style="text-align:center;width:100%;">
-      <thead><tr style="background-color:LightGray;"><th>Game</th><th>Customer</th><th>Amount</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot style="background-color:LightGray;font-weight:bold;"><tr><td colspan="2">Total</td><td class="pos">${total.toFixed(0)}</td></tr></tfoot>
-    </table>`;
+  wrap.innerHTML = `<table class="sales-tbl">
+    <thead>
+      <tr>
+        <th style="width:35px;">#</th>
+        <th style="text-align:left;">User</th>
+        <th style="text-align:right;">Total Sale</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2" style="text-align:left;">Total (${total} users)</td>
+        <td class="pos" style="text-align:right;">₹${grandTotal.toLocaleString('en-IN')}</td>
+      </tr>
+    </tfoot>
+  </table>`;
+}
+
+function changeUserPage(delta) {
+  const totalPages = Math.max(1, Math.ceil(filteredUsersSales.length / USER_PAGE_SIZE));
+  const newP = userPage + delta;
+  if (newP >= 1 && newP <= totalPages) {
+    userPage = newP;
+    renderUsersTable();
+  }
+}
+
+async function selectUser(uid, label, date) {
+  selectedUID = uid;
+  renderUsersTable(); // Re-render to update highlight
+
+  document.getElementById('lblUser').textContent = label;
+  document.getElementById('gamewiseWrap').innerHTML = '<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading game data...</div>';
+
+  try {
+    const r = await API.get(`/api/admin/user-sales-gamewise?uid=${uid}&date=${encodeURIComponent(date)}`);
+    rawGameDetails = r?.data || [];
+    filteredGameDetails = rawGameDetails;
+    gamePage = 1;
+    document.getElementById('gamesTotalPill').textContent = rawGameDetails.length + ' Entries';
+    renderGameTable();
+  } catch (e) {
+    document.getElementById('gamewiseWrap').innerHTML = '<div class="empty-state">Error loading game details</div>';
+  }
+}
+
+function onFilterGameDetails() {
+  const q = (document.getElementById('srchGameDetails').value || '').trim().toLowerCase();
+  if (!q) {
+    filteredGameDetails = rawGameDetails;
+  } else {
+    filteredGameDetails = rawGameDetails.filter(d =>
+      (d.GameName ? String(d.GameName).toLowerCase() : '').includes(q) ||
+      (d.CustomerName ? String(d.CustomerName).toLowerCase() : '').includes(q)
+    );
+  }
+  gamePage = 1;
+  renderGameTable();
+}
+
+function renderGameTable() {
+  const wrap = document.getElementById('gamewiseWrap');
+  const total = filteredGameDetails.length;
+  const totalPages = Math.max(1, Math.ceil(total / GAME_PAGE_SIZE));
+
+  if (gamePage > totalPages) gamePage = totalPages;
+  if (gamePage < 1) gamePage = 1;
+
+  const start = (gamePage - 1) * GAME_PAGE_SIZE;
+  const end = Math.min(start + GAME_PAGE_SIZE, total);
+  const items = filteredGameDetails.slice(start, end);
+
+  updateGamePagination();
+
+  if (!total) {
+    wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No game data found</div>';
+    return;
+  }
+
+  const grandTotal = filteredGameDetails.reduce((acc, d) => acc + parseFloat(d.TotalAmount || 0), 0);
+
+  const rows = items.map((d, i) => `<tr>
+    <td style="color:var(--muted);width:30px;">${start + i + 1}</td>
+    <td style="text-align:left;font-weight:600;">${d.GameName || '-'}</td>
+    <td style="text-align:left;">${d.CustomerName || '-'}</td>
+    <td class="pos" style="text-align:right;">₹${parseFloat(d.TotalAmount || 0).toLocaleString('en-IN')}</td>
+  </tr>`).join('');
+
+  wrap.innerHTML = `<table class="sales-tbl">
+    <thead>
+      <tr>
+        <th style="width:30px;">#</th>
+        <th style="text-align:left;">Game</th>
+        <th style="text-align:left;">Customer</th>
+        <th style="text-align:right;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" style="text-align:left;">Subtotal</td>
+        <td class="pos" style="text-align:right;">₹${grandTotal.toLocaleString('en-IN')}</td>
+      </tr>
+    </tfoot>
+  </table>`;
+}
+
+function updateGamePagination() {
+  const total = filteredGameDetails.length;
+  const totalPages = Math.max(1, Math.ceil(total / GAME_PAGE_SIZE));
+  const start = (gamePage - 1) * GAME_PAGE_SIZE;
+  const end = Math.min(start + GAME_PAGE_SIZE, total);
+
+  document.getElementById('gamePagInfo').textContent = total === 0 ? 'Showing 0 of 0' : `${start + 1}–${end} of ${total}`;
+  document.getElementById('gamePageNum').textContent = `${gamePage}/${totalPages}`;
+  document.getElementById('btnGamePrev').disabled = (gamePage <= 1);
+  document.getElementById('btnGameNext').disabled = (gamePage >= totalPages);
+}
+
+function changeGamePage(delta) {
+  const totalPages = Math.max(1, Math.ceil(filteredGameDetails.length / GAME_PAGE_SIZE));
+  const newP = gamePage + delta;
+  if (newP >= 1 && newP <= totalPages) {
+    gamePage = newP;
+    renderGameTable();
+  }
 }
 
 init();
