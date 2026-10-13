@@ -202,6 +202,8 @@ function loadThemeFonts() {
 function _applyUserPermissions(u, active) {
   if (!u) return true;
 
+  const isSuperAdminUser = !u.SubUID && (u.IsSuperAdmin === 1 || u.IsSuperAdmin === true || String(u.IsSuperAdmin) === '1' || String(u.SuperAdminStatus).toLowerCase() === 'true');
+
   const navUID = document.getElementById('navUID');
   if (navUID) {
     navUID.textContent = u.subusername ? u.subusername : (u.UID ? 'User #' + u.UID : 'User');
@@ -212,16 +214,19 @@ function _applyUserPermissions(u, active) {
     if (u.SubUID) {
       sub.textContent = 'Staff: ' + (u.subusername || u.SubUID);
       sub.style.display = 'inline';
+    } else if (isSuperAdminUser) {
+      sub.textContent = 'Super Admin';
+      sub.style.display = 'inline';
     } else {
       sub.textContent = 'Administrator';
       sub.style.display = 'inline';
     }
   }
 
-  // Subscription badge update for Admin
+  // Subscription badge update (never show for sub-users or superadmin)
   const badgeWrap = document.getElementById('headerSubBadgeWrap');
   if (badgeWrap) {
-    if (u.SubUID) {
+    if (u.SubUID || isSuperAdminUser) {
       badgeWrap.style.display = 'none';
     } else if (u.validity) {
       const days = u.daysRemaining !== undefined ? u.daysRemaining : 0;
@@ -238,8 +243,18 @@ function _applyUserPermissions(u, active) {
     }
   }
 
-  if (u.SubUID) {
+  // SuperAdmins don't buy subscriptions for themselves; redirect if opened directly
+  if (isSuperAdminUser && active === 'subscription') {
+    window.location.href = '/pages/admin/subscriptions.html';
+    return false;
+  }
+
+  // Hide subscription menu item for Staff and SuperAdmin
+  if (u.SubUID || isSuperAdminUser) {
     _hide('nav-subscription');
+  }
+
+  if (u.SubUID) {
     const isTrue = v => v === true || v === 1 || String(v).toLowerCase() === 'true' || String(v) === '1';
 
     // Only checked menus are visible, everything else is hidden
@@ -291,9 +306,12 @@ function _applyUserPermissions(u, active) {
       window.location.href = '/pages/home.html';
       return false;
     }
-  } else if (u.SuperAdmin === 'SuperAdmin') {
-    const adminItem = document.getElementById('nav-admin');
-    if (adminItem) adminItem.style.display = 'block';
+  }
+
+  // Admin menu strictly for genuine SuperAdmins
+  const adminItem = document.getElementById('nav-admin');
+  if (adminItem) {
+    adminItem.style.display = isSuperAdminUser ? 'block' : 'none';
   }
   return true;
 }
@@ -356,7 +374,7 @@ function renderAdminShell(active) {
   return `
   <div class="main-header">
     <div class="logo-header" data-background-color="blue">
-      <a href="/pages/admin/dashboard.html" class="logo">MahaMaya</a>
+      <a href="/pages/admin/dashboard.html" class="logo">SUSU9</a>
       <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
       </button>
@@ -371,7 +389,7 @@ function renderAdminShell(active) {
           <div class="user-avatar"><i class="fa fa-user-circle"></i></div>
           <div class="user-details">
             <span class="user-name" id="navUID">User</span>
-            <span class="user-role">Administrator</span>
+            <span class="user-role">Super Admin</span>
           </div>
           <a href="#" onclick="doLogout();return false;" class="btn-logout" title="Logout">
             <i class="fas fa-sign-out-alt fa fa-sign-out"></i> <span>Logout</span>
@@ -422,16 +440,22 @@ function _wrapPageContent(shellHtml) {
 // ── initAdminPage — same asset loading as initPage, admin-only sidebar,
 // requires SuperAdmin (matches ADMIN/*.aspx server-side access pattern) ──
 async function initAdminPage(active) {
-  _wrapPageContent(renderAdminShell(active));
+  const _isSA = (u) => u && !u.SubUID && (u.IsSuperAdmin === 1 || u.IsSuperAdmin === true || String(u.IsSuperAdmin) === '1' || String(u.SuperAdminStatus).toLowerCase() === 'true');
 
   const cachedUserStr = localStorage.getItem('susu9_user');
   if (cachedUserStr) {
     try {
       const cached = JSON.parse(cachedUserStr);
+      if (!_isSA(cached)) {
+        window.location.href = '/pages/home.html';
+        return null;
+      }
       const navUID = document.getElementById('navUID');
       if (navUID) navUID.textContent = cached.subusername ? cached.subusername : (cached.UID ? 'User #' + cached.UID : 'User');
     } catch(e) {}
   }
+
+  _wrapPageContent(renderAdminShell(active));
 
   loadThemeFonts();
   const vendorPromise = loadVendorAssets();
@@ -441,7 +465,7 @@ async function initAdminPage(active) {
     const r = await API.get('/api/auth/me');
     if (!r || !r.success) { window.location.href = '/login.html'; return null; }
     const u = r.user;
-    if (u.SubUID || u.SuperAdmin !== 'SuperAdmin') { window.location.href = '/pages/home.html'; return null; }
+    if (!_isSA(u)) { window.location.href = '/pages/home.html'; return null; }
 
     const navUID = document.getElementById('navUID');
     if (navUID) navUID.textContent = u.subusername ? u.subusername : (u.UID ? 'User #' + u.UID : 'User');

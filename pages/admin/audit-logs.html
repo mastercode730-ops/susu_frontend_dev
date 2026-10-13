@@ -125,6 +125,8 @@
   cursor: pointer;
 }
 .pag-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.fa-spin { display: inline-block; animation: spin 0.85s linear infinite; }
 </style>
 </head>
 <body>
@@ -140,7 +142,10 @@
       <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Complete chronological audit trail of all Users, Staff Sub-Users, and Admin actions</div>
     </div>
     <div style="display:flex;gap:8px;">
-      <button class="btn btn-secondary btn-sm" onclick="loadAuditLogs()">&#8635; Refresh Logs</button>
+      <button class="btn btn-secondary btn-sm" id="btnRefreshLogs" onclick="refreshAuditLogs()" style="display:inline-flex;align-items:center;gap:6px;">
+        <i class="fas fa-sync-alt" id="refreshLogsIcon"></i>
+        <span id="refreshLogsText">Refresh Logs</span>
+      </button>
       <a href="/pages/admin/dashboard.html" class="btn btn-secondary btn-sm">&#8592; Dashboard</a>
     </div>
   </div>
@@ -225,6 +230,24 @@ function onSearchTyping() {
     currentPage = 1;
     loadAuditLogs();
   }, 200);
+}
+
+async function refreshAuditLogs() {
+  const btn = document.getElementById('btnRefreshLogs');
+  const icon = document.getElementById('refreshLogsIcon');
+  const text = document.getElementById('refreshLogsText');
+  if (btn) btn.disabled = true;
+  if (icon) icon.classList.add('fa-spin');
+  if (text) text.textContent = 'Refreshing...';
+  try {
+    await loadAuditLogs();
+  } finally {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('fa-spin');
+      if (text) text.textContent = 'Refresh Logs';
+      if (btn) btn.disabled = false;
+    }, 450);
+  }
 }
 
 async function loadAuditLogs() {

@@ -151,7 +151,7 @@
       <div id="expiredAlert" class="expired-banner" style="display:none;">
         <i class="fa fa-exclamation-triangle" style="font-size: 20px;"></i>
         <div>
-          <span>Aapka 15-day Free Trial ya Subscription expire ho chuka hai. Kripya niche diye gaye kisi bhi plan ko choose karke online payment karein taaki portal turant unlock ho jaye.</span>
+          <span>Aapka Free Trial ya Subscription expire ho chuka hai. Kripya niche diye gaye kisi bhi plan ko choose karke online payment karein taaki portal turant unlock ho jaye.</span>
         </div>
       </div>
 
@@ -301,7 +301,8 @@ async function loadSubscriptionStatus() {
       heroDetails.innerHTML = `Aapka subscription <strong>${valFormatted}</strong> ko expire ho chuka hai. Naya plan chun kar turant renew karein.`;
       badgeWrap.innerHTML = `<div class="sub-badge expired"><i class="fa fa-times-circle"></i> Expired (${valFormatted})</div>`;
     } else if (d.isTrial) {
-      heroDetails.innerHTML = `Aapka <strong>15-Day Free Trial</strong> chal raha hai. Valid till: <strong>${valFormatted}</strong> (${d.daysRemaining} days remaining).`;
+      const tLabel = d.trialDays ? `${d.trialDays}-Day ` : "";
+      heroDetails.innerHTML = `Aapka <strong>${tLabel}Free Trial</strong> chal raha hai. Valid till: <strong>${valFormatted}</strong> (${d.daysRemaining} days remaining).`;
       const badgeCls = d.daysRemaining <= 3 ? 'warning' : 'active';
       badgeWrap.innerHTML = `<div class="sub-badge ${badgeCls}"><i class="fa fa-gift"></i> Free Trial: ${d.daysRemaining} Days Left</div>`;
     } else {

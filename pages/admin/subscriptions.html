@@ -277,7 +277,7 @@
         <div>
           <label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Choose Plan / Extension Duration</label>
           <select id="grantPlanOption" onchange="onGrantPlanChange()" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;box-sizing:border-box;">
-            <option value="15">Extend 15 Days (Free Trial Extension)</option>
+            <option value="12" id="optTrialExtend">Extend 12 Days (Free Trial Extension)</option>
             <option value="30" selected>Monthly Plan (30 Days)</option>
             <option value="90">Quarterly Plan (90 Days)</option>
             <option value="365">Annual Plan (365 Days)</option>
@@ -364,7 +364,14 @@ async function loadTableData() {
     currentPage = page;
     totalPages = tp;
 
-    // Update KPIs
+    // Update KPIs & Trial extension option
+    if (res.data.freeTrialDays) {
+      const opt = document.getElementById('optTrialExtend');
+      if (opt) {
+        opt.value = res.data.freeTrialDays;
+        opt.textContent = `Extend ${res.data.freeTrialDays} Days (Free Trial Extension)`;
+      }
+    }
     if (kpis) {
       document.getElementById('statRevenue').textContent = '₹' + Number(kpis.totalRevenue || 0).toLocaleString('en-IN');
       document.getElementById('statTransactions').textContent = `${kpis.totalTransactions} Total Transactions`;

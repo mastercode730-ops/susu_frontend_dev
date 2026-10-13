@@ -195,6 +195,8 @@
 }
 .pag-btn:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; }
 .pag-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.fa-spin { display: inline-block; animation: spin 0.85s linear infinite; }
 </style>
 </head>
 <body>
@@ -210,7 +212,10 @@
       <div class="dash-subtitle" id="dashLiveDate">Loading system metrics...</div>
     </div>
     <div class="dash-head-actions">
-      <button class="btn btn-secondary btn-sm" onclick="loadDashboardData()" title="Reload metrics">&#8635; Refresh</button>
+      <button class="btn btn-secondary btn-sm" id="btnRefreshDash" onclick="refreshDashboard()" title="Reload metrics" style="display:inline-flex;align-items:center;gap:6px;">
+        <i class="fas fa-sync-alt" id="refreshIcon"></i>
+        <span id="refreshText">Refresh</span>
+      </button>
       <button class="btn btn-success btn-sm" onclick="goToApp()">Admin &#8594; Go to App</button>
     </div>
   </div>
@@ -252,7 +257,7 @@
       <div class="kpi-info">
         <span class="kpi-label">Active Free Trial</span>
         <span class="kpi-value" id="kpiActiveFreeTrial">-</span>
-        <span class="kpi-sub">Testing 15-day trial</span>
+        <span class="kpi-sub" id="kpiActiveFreeTrialSub">Testing Free Trial</span>
       </div>
       <div class="kpi-icon-pill pill-cyan">&#127881;</div>
     </a>
@@ -354,6 +359,29 @@ async function init() {
   fetchUsersTable();
 }
 
+async function refreshDashboard() {
+  const btn = document.getElementById('btnRefreshDash');
+  const icon = document.getElementById('refreshIcon');
+  const text = document.getElementById('refreshText');
+  if (btn) btn.disabled = true;
+  if (icon) icon.classList.add('fa-spin');
+  if (text) text.textContent = 'Refreshing...';
+  try {
+    await Promise.all([
+      loadDashboardData(),
+      fetchUsersTable()
+    ]);
+  } catch (err) {
+    console.error('Refresh error:', err);
+  } finally {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('fa-spin');
+      if (text) text.textContent = 'Refresh';
+      if (btn) btn.disabled = false;
+    }, 450);
+  }
+}
+
 async function loadDashboardData() {
   try {
     const res = await API.get('/api/admin/dashboard-stats');
@@ -375,9 +403,11 @@ async function loadDashboardData() {
     document.getElementById('kpiExpiredTrialUnpaid').textContent = Number(k.expiredTrialUnpaid || 0).toLocaleString('en-IN');
     document.getElementById('kpiNewUsersMonth').textContent = Number(k.newUsersMonth || 0).toLocaleString('en-IN');
 
-    if (c.freeTrialDays) {
-      document.getElementById('cfgTrialBadge').textContent = c.freeTrialDays + ' Days';
-    }
+    const trialDays = c.freeTrialDays || 12;
+    const cfgBadge = document.getElementById('cfgTrialBadge');
+    if (cfgBadge) cfgBadge.textContent = trialDays + ' Days';
+    const trialSub = document.getElementById('kpiActiveFreeTrialSub');
+    if (trialSub) trialSub.textContent = `Testing ${trialDays}-day trial`;
   } catch (err) {
     console.error('Failed to load dashboard metrics', err);
   }
